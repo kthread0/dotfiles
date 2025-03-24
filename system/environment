@@ -1,0 +1,28 @@
+#
+# This file is parsed by pam_env module
+#
+# Syntax: simple "KEY=VAL" pairs on separate lines
+#
+
+RADV_DEBUG="zerovram"
+RADV_PERFTEST="sam,transfer_queue,video_decode,video_encode"
+AMD_DEBUG="lowlatencyenc,useaco"
+LIBVA_DRIVER_NAME="radeonsi"
+VDPAU_DRIVER="radeonsi"
+radeonsi_zerovram="true"
+
+QT_QPA_PLATFORM="wayland"
+QT_SCALE_FACTOR_ROUNDING_POLICY="RoundPreferFloor"
+CLUTTER_BACKEND="wayland"
+SDL_VIDEODRIVER="wayland"
+ELECTRON_OZONE_PLATFORM_HINT="wayland"
+GDK_BACKEND="wayland"
+GSK_RENDERER="vulkan"
+_JAVA_AWT_WM_NONREPARENTING="1"
+
+LLVM="1"
+LLVM_IAS="1"
+
+GTK_IM_MODULE="ibus"
+QT_IM_MODULE="ibus"
+XMODIFIERS="@im=ibus"
