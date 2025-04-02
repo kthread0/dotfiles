@@ -5,11 +5,13 @@
 #
 
 RADV_DEBUG="zerovram"
-RADV_PERFTEST="sam,transfer_queue,video_decode,video_encode"
-AMD_DEBUG="lowlatencyenc,useaco"
+radeonsi_zerovram="true"
+radeonsi_clamp_div_by_zero="true"
+radeonsi_no_infinite_interp="true"
+RADV_PERFTEST="bolist,cswave32,dccmsaa,gewave32,localbos,nircache,pswave32,sam,transfer_queue,video_decode,video_encode"
+AMD_DEBUG="lowlatencyenc"
 LIBVA_DRIVER_NAME="radeonsi"
 VDPAU_DRIVER="radeonsi"
-radeonsi_zerovram="true"
 
 QT_QPA_PLATFORM="wayland"
 QT_SCALE_FACTOR_ROUNDING_POLICY="RoundPreferFloor"
@@ -26,3 +28,5 @@ LLVM_IAS="1"
 GTK_IM_MODULE="ibus"
 QT_IM_MODULE="ibus"
 XMODIFIERS="@im=ibus"
+
+EDITOR="nvim"
