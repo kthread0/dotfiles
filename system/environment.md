@@ -1,5 +1,6 @@
 # Environment Variables
 
+```
 RADV_DEBUG="zerovram"
 radeonsi_zerovram="true"
 radeonsi_clamp_div_by_zero="true"
@@ -26,3 +27,4 @@ QT_IM_MODULE="ibus"
 XMODIFIERS="@im=ibus"
 
 EDITOR="nvim"
+```
