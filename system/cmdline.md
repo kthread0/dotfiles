@@ -1,0 +1,3 @@
+# Kernel Command Line Options
+
+`ro rcutree.kthread_prio=99 realloc pci=pcie_bus_perf workqueue.power_efficient=0 amd_pstate=active gbpages default_hugepagesz=1G hugepagesz=1G hugepages=1 hugepagesz=2M hugepages=4 hugetlb_free_vmemmap=on preempt=full threadirqs preempt=full lsm=landlock,lockdown,yama,integrity,bpf slab_nomerge init_on_alloc=1 randomize_kstack_offset=on init_on_free=1 page_alloc.shuffle=1 pti=on vsyscall=none oops=panic module.sig_enforce=1 mce=0 quiet splash loglevel=0`

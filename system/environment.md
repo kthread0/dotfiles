@@ -1,8 +1,4 @@
-#
-# This file is parsed by pam_env module
-#
-# Syntax: simple "KEY=VAL" pairs on separate lines
-#
+# Environment Variables
 
 RADV_DEBUG="zerovram"
 radeonsi_zerovram="true"
@@ -20,7 +16,7 @@ SDL_VIDEODRIVER="wayland"
 ELECTRON_OZONE_PLATFORM_HINT="wayland"
 GDK_BACKEND="wayland"
 GSK_RENDERER="vulkan"
-_JAVA_AWT_WM_NONREPARENTING="1"
+\_JAVA_AWT_WM_NONREPARENTING="1"
 
 LLVM="1"
 LLVM_IAS="1"
