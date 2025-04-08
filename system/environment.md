@@ -6,7 +6,7 @@ radeonsi_zerovram="true"
 radeonsi_clamp_div_by_zero="true"
 radeonsi_no_infinite_interp="true"
 RADV_PERFTEST="bolist,cswave32,dccmsaa,gewave32,localbos,nircache,pswave32,sam,transfer_queue,video_decode,video_encode"
-AMD_DEBUG="lowlatencyenc"
+AMD_DEBUG="lowlatencyenc,useaco"
 LIBVA_DRIVER_NAME="radeonsi"
 VDPAU_DRIVER="radeonsi"
 
