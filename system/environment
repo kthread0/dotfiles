@@ -13,17 +13,9 @@ CLUTTER_BACKEND="wayland"
 SDL_VIDEODRIVER="wayland"
 ELECTRON_OZONE_PLATFORM_HINT="wayland"
 GDK_BACKEND="wayland"
-GDK_DEBUG="hdr,color-mgmt,high-depth,portals,force-offload"
 GSK_RENDERER="vulkan"
 GSK_DEBUG="staging"
 _JAVA_AWT_WM_NONREPARENTING="1"
-
-LLVM="1"
-LLVM_IAS="1"
-
-GTK_IM_MODULE="ibus"
-QT_IM_MODULE="ibus"
-XMODIFIERS="@im=ibus"
 
 EDITOR="nvim"
 
