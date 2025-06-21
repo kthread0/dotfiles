@@ -53,7 +53,7 @@ user_pref("content.notify.interval", 100000); // (.10s); default=120000 (.12s)
 // [WARNING] Disabling this may cause a delay when opening a new tab in Firefox.
 // [1] https://wiki.mozilla.org/Tiles/Technical_Documentation#Ping
 // [2] https://github.com/arkenfox/user.js/issues/1556
-/user_pref("browser.newtab.preload", true); // DEFAULT
+user_pref("browser.newtab.preload", true); // DEFAULT
 
 // PREF: disable EcoQoS [WINDOWS]
 // Background tab processes use efficiency mode on Windows 11 to limit resource use.
@@ -130,7 +130,7 @@ user_pref("media.ffmpeg.vaapi.enabled", true); // LINUX
 // [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1829063
 // [2] https://phabricator.services.mozilla.com/D175993
 user_pref("gfx.webrender.dcomp-video-hw-overlay-win", true); // DEFAULT
-/user_pref("gfx.webrender.dcomp-video-hw-overlay-win-force-enabled", true); // enforce
+user_pref("gfx.webrender.dcomp-video-hw-overlay-win-force-enabled", true); // enforce
 //user_pref("gfx.webrender.dcomp-video-sw-overlay-win", true); // DEFAULT
     //user_pref("gfx.webrender.dcomp-video-sw-overlay-win-force-enabled", true); // enforce
 
@@ -144,7 +144,7 @@ user_pref("gfx.webrender.dcomp-video-hw-overlay-win", true); // DEFAULT
 // More efficient to keep the browser cache instead of having to
 // re-download objects for the websites you visit frequently.
 // [1] https://www.janbambas.cz/new-firefox-http-cache-enabled/
-user_pref("browser.cache.disk.enable", true;
+user_pref("browser.cache.disk.enable", true);
 
 // PREF: disk cache size
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=913808,968106,968101
