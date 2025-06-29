@@ -1,8 +1,0 @@
-[font]
-normal = ["JetBrainsMono Nerd Font"]
-size = 11.5
-hinting = "full"
-edging = "antialias"
-
-[box-drawing]
-mode = "native"
