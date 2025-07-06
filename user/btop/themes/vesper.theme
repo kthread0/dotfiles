@@ -1,0 +1,92 @@
+# Vesper theme for btop
+# Based on the Vesper Neovim theme by datsfilipe
+
+# Main background
+theme[main_bg]="#101010"
+
+# Main text color
+theme[main_fg]="#CCCCCC"
+
+# Title color
+theme[title]="#FEFEFE"
+
+# Highlight color
+theme[hi_fg]="#FFFFFF"
+
+# Selected background
+theme[selected_bg]="#282828"
+theme[selected_fg]="#FEFEFE"
+
+# Inactive/grayed out
+theme[inactive_fg]="#65737E"
+
+# Graph colors
+theme[graph_text]="#CCCCCC"
+theme[meter_bg]="#232323"
+
+# CPU colors
+theme[cpu_box]="#505050"
+theme[cpu_text]="#CCCCCC"
+theme[cpu_start]="#99FFE4"
+theme[cpu_mid]="#FFC799"
+theme[cpu_end]="#FF8080"
+
+# Memory colors
+theme[mem_box]="#505050"
+theme[mem_text]="#CCCCCC"
+theme[mem_start]="#7DD9C1"
+theme[mem_mid]="#FFCFA8"
+theme[mem_end]="#FF8080"
+
+# Network colors
+theme[net_box]="#505050"
+theme[net_text]="#CCCCCC"
+theme[net_down]="#7DD9C1"
+theme[net_up]="#FF8080"
+
+# Process colors
+theme[proc_box]="#505050"
+theme[proc_text]="#CCCCCC"
+theme[proc_start]="#99FFE4"
+theme[proc_mid]="#A0A0A0"
+theme[proc_end]="#65737E"
+
+# Disk colors
+theme[disk_box]="#505050"
+theme[disk_text]="#CCCCCC"
+theme[disk_start]="#99FFE4"
+theme[disk_mid]="#FFC799"
+theme[disk_end]="#FF8080"
+
+# Temperature colors
+theme[temp_start]="#7DD9C1"
+theme[temp_mid]="#FFC799"
+theme[temp_end]="#FF8080"
+
+# Symbol colors
+theme[symbol]="#65737E"
+theme[symbol_start]="#99FFE4"
+theme[symbol_mid]="#FFCFA8"
+theme[symbol_end]="#FF8080"
+
+# Error and warning colors
+theme[error]="#FF8080"
+theme[warning]="#FFC799"
+theme[info]="#99FFE4"
+theme[hint]="#65737E"
+
+# Divider colors
+theme[div_line]="#505050"
+
+# Input field colors
+theme[input_fg]="#FEFEFE"
+theme[input_bg]="#161616"
+
+# Button colors
+theme[button_fg]="#FEFEFE"
+theme[button_bg]="#343434"
+
+# Progress bar colors
+theme[progress_start]="#99FFE4"
+theme[progress_mid]="#FFC799"
+theme[progress_end]="#FF8080"

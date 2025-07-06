@@ -1,0 +1,265 @@
+/* Vesper GTK3 Theme */
+/* Based on the Vesper Neovim theme by datsfilipe */
+
+/* Color definitions */
+@define-color bg_color #101010;
+@define-color bg_dark_color #161616;
+@define-color bg_darker_color #232323;
+@define-color bg_float_color #282828;
+@define-color bg_option_color #343434;
+
+@define-color fg_color #CCCCCC;
+@define-color fg_alt_color #FEFEFE;
+@define-color fg_inactive_color #65737E;
+@define-color fg_disabled_color #505050;
+
+@define-color border_color #505050;
+@define-color border_focus_color #65737E;
+@define-color border_darker_color #A0A0A0;
+
+@define-color accent_color #99FFE4;
+@define-color error_color #FF8080;
+@define-color warning_color #FFC799;
+@define-color success_color #7DD9C1;
+@define-color info_color #99FFE4;
+
+/* Base colors */
+@define-color theme_bg_color @bg_color;
+@define-color theme_fg_color @fg_color;
+@define-color theme_base_color @bg_dark_color;
+@define-color theme_text_color @fg_color;
+@define-color theme_selected_bg_color @accent_color;
+@define-color theme_selected_fg_color @bg_color;
+@define-color theme_tooltip_bg_color @bg_float_color;
+@define-color theme_tooltip_fg_color @fg_alt_color;
+
+/* Window styling */
+window {
+    background-color: @bg_color;
+    color: @fg_color;
+}
+
+/* Headers */
+headerbar {
+    background: linear-gradient(to bottom, @bg_option_color, @bg_float_color);
+    color: @fg_alt_color;
+    border-bottom: 1px solid @border_color;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+headerbar:backdrop {
+    background: @bg_float_color;
+    color: @fg_inactive_color;
+}
+
+/* Buttons */
+button {
+    background: linear-gradient(to bottom, @bg_option_color, @bg_float_color);
+    color: @fg_color;
+    border: 1px solid @border_color;
+    border-radius: 6px;
+    padding: 6px 12px;
+    transition: all 200ms ease;
+}
+
+button:hover {
+    background: linear-gradient(to bottom, @bg_float_color, @bg_option_color);
+    border-color: @border_focus_color;
+    color: @fg_alt_color;
+}
+
+button:active {
+    background: @bg_darker_color;
+    border-color: @accent_color;
+}
+
+button.suggested-action {
+    background: linear-gradient(to bottom, @accent_color, shade(@accent_color, 0.8));
+    color: @bg_color;
+    border-color: @accent_color;
+}
+
+button.destructive-action {
+    background: linear-gradient(to bottom, @error_color, shade(@error_color, 0.8));
+    color: @bg_color;
+    border-color: @error_color;
+}
+
+/* Entry fields */
+entry {
+    background-color: @bg_dark_color;
+    color: @fg_color;
+    border: 1px solid @border_color;
+    border-radius: 6px;
+    padding: 8px;
+    transition: all 200ms ease;
+}
+
+entry:focus {
+    border-color: @accent_color;
+    box-shadow: 0 0 0 2px alpha(@accent_color, 0.3);
+}
+
+entry:disabled {
+    background-color: @bg_darker_color;
+    color: @fg_disabled_color;
+}
+
+/* Scrollbars */
+scrollbar {
+    background: @bg_color;
+    border: none;
+}
+
+scrollbar slider {
+    background: @border_color;
+    border-radius: 10px;
+    min-width: 12px;
+    min-height: 12px;
+    margin: 2px;
+}
+
+scrollbar slider:hover {
+    background: @border_focus_color;
+}
+
+scrollbar slider:active {
+    background: @accent_color;
+}
+
+/* Menus */
+menu {
+    background-color: @bg_float_color;
+    color: @fg_color;
+    border: 1px solid @border_color;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+menuitem {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+menuitem:hover {
+    background-color: @accent_color;
+    color: @bg_color;
+}
+
+/* Notebooks/Tabs */
+notebook {
+    background-color: @bg_color;
+}
+
+notebook tab {
+    background: @bg_float_color;
+    color: @fg_inactive_color;
+    border: 1px solid @border_color;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 8px 16px;
+    margin-right: 2px;
+}
+
+notebook tab:checked {
+    background: @bg_color;
+    color: @fg_alt_color;
+    border-bottom: 2px solid @accent_color;
+}
+
+/* Progress bars */
+progressbar {
+    background-color: @bg_darker_color;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+progressbar progress {
+    background: linear-gradient(to right, @accent_color, @success_color);
+    border-radius: 4px;
+}
+
+/* Switches */
+switch {
+    background-color: @bg_darker_color;
+    border: 1px solid @border_color;
+    border-radius: 16px;
+}
+
+switch:checked {
+    background-color: @accent_color;
+}
+
+switch slider {
+    background-color: @fg_color;
+    border-radius: 50%;
+    margin: 2px;
+}
+
+/* Checkboxes and radio buttons */
+checkbutton check,
+radiobutton radio {
+    background-color: @bg_dark_color;
+    border: 1px solid @border_color;
+    border-radius: 4px;
+}
+
+checkbutton check:checked,
+radiobutton radio:checked {
+    background-color: @accent_color;
+    color: @bg_color;
+}
+
+/* Tooltips */
+tooltip {
+    background-color: @bg_float_color;
+    color: @fg_alt_color;
+    border: 1px solid @border_color;
+    border-radius: 6px;
+    padding: 6px 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Popovers */
+popover {
+    background-color: @bg_float_color;
+    color: @fg_color;
+    border: 1px solid @border_color;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Sidebar */
+sidebar {
+    background-color: @bg_dark_color;
+    border-right: 1px solid @border_color;
+}
+
+sidebar row {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 2px 4px;
+}
+
+sidebar row:selected {
+    background-color: @accent_color;
+    color: @bg_color;
+}
+
+/* Text views */
+textview {
+    background-color: @bg_dark_color;
+    color: @fg_color;
+}
+
+textview text {
+    background-color: @bg_dark_color;
+    color: @fg_color;
+}
+
+/* Selection */
+selection {
+    background-color: @accent_color;
+    color: @bg_color;
+}
