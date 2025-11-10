@@ -14,10 +14,10 @@ Real-time kernel latency measurements for AMD Ryzen 5 5600XT using [cyclictest](
 
 The following plots compare latency characteristics across both monotonic and realtime clock sources:
 
-**CLOCK_MONOTONIC** - Measures elapsed time tied to system wall clock:
+**CLOCK_MONOTONIC** - Measures elapsed time since system boot, unaffected by manual clock adjustments:
 ![CLOCK_MONOTONIC Latency](./images/plot_clock0.png)
 
-**CLOCK_REALTIME** - Measures elapsed time unaffected by system clock adjustments:
+**CLOCK_REALTIME** - Measures wall-clock time, affected by manual clock adjustments and NTP:
 ![CLOCK_REALTIME Latency](./images/plot_clock1.png)
 
 #### Test Parameters
@@ -34,4 +34,9 @@ The following plots compare latency characteristics across both monotonic and re
 - **X-axis:** Latency measurement in microseconds (µs), capped at 400 µs
 - **Multiple lines:** Represent latency distributions per CPU core
 
-For more information on real-time performance tuning, see the [Real-Time Linux Wiki](https://wiki.linuxfoundation.org/realtime/start).
+#### Clock Type Differences
+
+- **CLOCK_MONOTONIC:** Not affected by system administrator time adjustments or NTP corrections; ideal for measuring intervals
+- **CLOCK_REALTIME:** Affected by manual clock changes and automatic NTP adjustments; represents actual wall-clock time
+
+For more information on real-time performance tuning, see the [Real-Time Linux Wiki](https://wiki.linuxfoundation.org/realtime/start) and the [clock_gettime(2) man page](https://man7.org/linux/man-pages/man2/clock_gettime.2.html).
