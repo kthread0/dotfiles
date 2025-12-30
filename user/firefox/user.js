@@ -1,15 +1,16 @@
-
 /****************************************************************************************
  * Fastfox                                                                              *
  * "Non ducor duco"                                                                     *
  * priority: speedy browsing                                                            *
- * version: 137                                                                         *
+ * version: 146                                                                         *
  * url: https://github.com/yokoffing/Betterfox                                          *
  ***************************************************************************************/
 
 /****************************************************************************
  * SECTION: GENERAL                                                        *
 ****************************************************************************/
+
+user_pref("layout.frame_rate", 180);
 
 // PREF: initial paint delay
 // How long FF will wait before rendering the page (in ms)
@@ -22,6 +23,12 @@
 user_pref("nglayout.initialpaint.delay", 5); // DEFAULT; formerly 250
 user_pref("nglayout.initialpaint.delay_in_oopif", 5); // DEFAULT
 
+// PREF: Font rendering cache in Skia (32MB)
+// Increases font cache size to improve performance on text-heavy websites.
+// Especially beneficial for sites with many font faces or complex typography.
+// [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1239151#c2
+user_pref("gfx.content.skia-font-cache-size", 64); // 32 MB; default=5; Chrome=20
+
 // PREF: page reflow timer
 // Rather than wait until a page has completely downloaded to display it to the user,
 // web browsers will periodically render what has been received to that point.
@@ -33,7 +40,7 @@ user_pref("nglayout.initialpaint.delay_in_oopif", 5); // DEFAULT
 // false = reflow pages whenever new data is received
 user_pref("content.notify.ontimer", true); // DEFAULT
 
-// PREF: notification interval (in microseconds) to avoid layout thrashing
+// PREF: content notification delay - notification interval (in microseconds) to avoid layout thrashing
 // When Firefox is loading a page, it periodically reformats
 // or "reflows" the page as it loads. The page displays new elements
 // every 0.12 seconds by default. These redraws increase the total page load time.
@@ -48,6 +55,15 @@ user_pref("content.notify.ontimer", true); // DEFAULT
 // [2] https://web.archive.org/web/20240115073722/https://dev.opera.com/articles/efficient-javascript/?page=3#reflow
 // [3] https://web.archive.org/web/20240115073722/https://dev.opera.com/articles/efficient-javascript/?page=3#smoothspeed
 user_pref("content.notify.interval", 100000); // (.10s); default=120000 (.12s)
+user_pref("content.max.tokenizing.time", 1000000); // (1.00s); alt=2000000; HIDDEN
+user_pref("content.interrupt.parsing", true); // HIDDEN
+
+// PREF: UI responsiveness threshold
+user_pref("content.switch.threshold", 300000); // HIDDEN; default= 750000; alt=500000
+
+// PREF: split text nodes to a length
+// The number of bytes in a text node.
+user_pref("content.maxtextrun", 16384); // DEFAULT; HIDDEN
 
 // PREF: new tab preload
 // [WARNING] Disabling this may cause a delay when opening a new tab in Firefox.
@@ -73,12 +89,12 @@ user_pref("browser.sessionstore.restore_pinned_tabs_on_demand", true);
 user_pref("browser.sessionstore.restore_tabs_lazily", true); // DEFAULT
 
 // PREF: disable preSkeletonUI on startup [WINDOWS]
-//user_pref("browser.startup.preXulSkeletonUI", false);
+user_pref("browser.startup.preXulSkeletonUI", false);
 
 // PREF: lazy load iframes
 user_pref("dom.iframe_lazy_loading.enabled", true); // DEFAULT [FF121+]
 
-// PREF: Prioritized Task Scheduling API 
+// PREF: Prioritized Task Scheduling API
 // [1] https://github.com/yokoffing/Betterfox/issues/355
 // [2] https://blog.mozilla.org/performance/2022/06/02/prioritized-task-scheduling-api-is-prototyped-in-nightly/
 // [3] https://medium.com/airbnb-engineering/building-a-faster-web-experience-with-the-posttask-scheduler-276b83454e91
@@ -102,6 +118,15 @@ user_pref("gfx.webrender.precache-shaders", true); // longer initial startup tim
 user_pref("gfx.webrender.compositor", true); // DEFAULT WINDOWS macOS
 user_pref("gfx.webrender.compositor.force-enabled", true); // enforce
 
+// PREF: Webrender layer compositor
+// [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1945683
+// [2] https://www.reddit.com/r/firefox/comments/1p58qre/firefox_is_getting_ready_to_make_youtube_fast/
+// [3] https://www.ghacks.net/2025/11/24/these-two-tweaks-should-improve-firefoxs-performance-on-youtube-significantly/
+user_pref("gfx.webrender.layer-compositor", true);
+// If your PC uses an AMD GPU, you might want to make a second change.
+// This one improves CPU usage on AMD systems.
+user_pref("media.wmf.zero-copy-nv12-textures-force-enabled", true);
+
 // PREF: if your hardware doesn't support Webrender, you can fallback to Webrender's software renderer
 // [1] https://www.ghacks.net/2020/12/14/how-to-find-out-if-webrender-is-enabled-in-firefox-and-how-to-enable-it-if-it-is-not/
 //user_pref("gfx.webrender.software", true); // Software Webrender uses CPU instead of GPU
@@ -118,10 +143,13 @@ user_pref("gfx.webrender.compositor.force-enabled", true); // enforce
 // [2] https://github.com/yokoffing/Betterfox/issues/153
 // [3] https://github.com/yokoffing/Betterfox/issues/198
 user_pref("gfx.canvas.accelerated", true); // [DEFAULT FF133+]
-user_pref("gfx.canvas.accelerated.cache-items", 32768); // DEFAULT FF135+; Chrome=4096
-user_pref("gfx.canvas.accelerated.cache-size", 16384); // default=256; Chrome=512
-user_pref("gfx.content.skia-font-cache-size", 1024); // default=5; Chrome=20
-    // [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1239151#c2
+user_pref("gfx.canvas.accelerated.cache-items", 65536); // [default=8192 FF135+]; Chrome=4096
+user_pref("gfx.canvas.accelerated.cache-size", 8192); // default=256; Chrome=512
+user_pref("gfx.canvas.max-size", 65536); // DEFAULT=32767
+
+// PREF: WebGL
+user_pref("webgl.max-size", 65536); // default=1024
+user_pref("webgl.force-enabled", true);
 
 // PREF: prefer GPU over CPU
 // At best, the prefs do nothing on Linux/macOS.
@@ -159,9 +187,9 @@ user_pref("browser.cache.disk.enable", true);
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=913808,968106,968101
 // [2] https://rockridge.hatenablog.com/entry/2014/09/15/165501
 // [3] https://www.reddit.com/r/firefox/comments/17oqhw3/firefox_and_ssd_disk_consumption/
-user_pref("browser.cache.disk.smart_size.enabled", true); // force a fixed max cache size on disk
-//user_pref("browser.cache.disk.capacity", 512000); // default=256000; size of disk cache; 1024000=1GB, 2048000=2GB
-//user_pref("browser.cache.disk.max_entry_size", 51200); // DEFAULT (50 MB); maximum size of an object in disk cache
+user_pref("browser.cache.disk.smart_size.enabled", false); // force a fixed max cache size on disk
+user_pref("browser.cache.disk.capacity", 8192000); // default=256000; size of disk cache; 1024000=1GB, 2048000=2GB
+user_pref("browser.cache.disk.max_entry_size", 819200); // DEFAULT (50 MB); maximum size of an object in disk cache
 
 // PREF: Race Cache With Network (RCWN) [FF59+]
 // [ABOUT] about:networking#rcwn
@@ -188,13 +216,13 @@ user_pref("network.http.rcwn.small_resource_size_kb", 512); // DEFAULT
 // for recently read cache entries [1]. It is managed by a cache thread, and caches with
 // metadata in the pool appear to be reused immediately.
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=986179
-user_pref("browser.cache.disk.metadata_memory_limit", 4096); // default=250 (0.25 MB); limit of recent metadata we keep in memory for faster access
+user_pref("browser.cache.disk.metadata_memory_limit", 32768); // default=250 (0.25 MB); limit of recent metadata we keep in memory for faster access
 
 // PREF: number of chunks we preload ahead of read
 // Large content such as images will load faster.
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=913819,988318
 // [2] http://www.janbambas.cz/new-firefox-http-cache-enabled/
-user_pref("browser.cache.disk.preload_chunk_count", 24); // DEFAULT
+user_pref("browser.cache.disk.preload_chunk_count", 16); // DEFAULT
 
 // PREF: the time period used to re-compute the frecency value of cache entries
 // The frequency algorithm is used to select entries, and entries that are recently
@@ -207,7 +235,7 @@ user_pref("browser.cache.disk.preload_chunk_count", 24); // DEFAULT
 // data older than 6 hours is treated as old.
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=942835,1012327
 // [2] https://bugzilla.mozilla.org/buglist.cgi?bug_id=913808,968101
-user_pref("browser.cache.frecency_half_life_hours", 8); // DEFAULT
+user_pref("browser.cache.frecency_half_life_hours", 6); // DEFAULT
 
 // PREF: memory limit (in kB) for new cache data not yet written to disk
 // Writes to the cache are buffered and written to disk on background with low priority.
@@ -215,15 +243,15 @@ user_pref("browser.cache.frecency_half_life_hours", 8); // DEFAULT
 // fast from the network. When the amount of unwritten data is exceeded, new
 // writes will simply fail. We have two buckets, one for important data
 // (priority) like html, css, fonts and js, and one for other data like images, video, etc.
-user_pref("browser.cache.disk.max_chunks_memory_usage", 163840); // DEFAULT (40 MB)
-user_pref("browser.cache.disk.max_priority_chunks_memory_usage", 163840); // DEFAULT (40 MB)
+user_pref("browser.cache.disk.max_chunks_memory_usage", 81920); // DEFAULT (40 MB)
+user_pref("browser.cache.disk.max_priority_chunks_memory_usage", 81920); // DEFAULT (40 MB)
 
 // PREF: how often to validate document in cache
 // 0 = once-per-session
 // 1 = each-time
 // 2 = never
 // 3 = when-appropriate/automatically (default)
-user_pref("browser.cache.check_doc_frequency", 1); // DEFAULT
+user_pref("browser.cache.check_doc_frequency", 3); // DEFAULT
 
 // PREF: enforce free space checks
 // When smartsizing is disabled, we could potentially fill all disk space by
@@ -232,15 +260,15 @@ user_pref("browser.cache.check_doc_frequency", 1); // DEFAULT
 // space is checked against two limits. Once the soft limit is reached we start
 // evicting the least useful entries, when we reach the hard limit writing to
 // the entry fails.
-//user_pref("browser.cache.disk.free_space_soft_limit", 10240); // default=5120 (5 MB)
-//user_pref("browser.cache.disk.free_space_hard_limit", 2048); // default=1024 (1 MB)
+user_pref("browser.cache.disk.free_space_soft_limit", 81920); // default=5120 (5 MB)
+user_pref("browser.cache.disk.free_space_hard_limit", 163840); // default=1024 (1 MB)
 
 // PREF: compression level for cached JavaScript bytecode [FF102+]
 // [1] https://github.com/yokoffing/Betterfox/issues/247
 // 0 = do not compress (default)
 // 1 = minimal compression
 // 9 = maximal compression
-user_pref("browser.cache.jsbc_compression_level", 4);
+user_pref("browser.cache.jsbc_compression_level", 3);
 
 // PREF: strategy to use for when the bytecode should be encoded and saved [TESTING ONLY]
 // -1 makes page load times marginally longer when a page is being loaded for the first time, while
@@ -252,7 +280,7 @@ user_pref("browser.cache.jsbc_compression_level", 4);
 // -1 = saved as soon as the script is seen for the first time, independently of the size or last access time
 // 0 = saved in order to minimize the page-load time (default)
 user_pref("dom.script_loader.bytecode_cache.enabled", true); // DEFAULT
-user_pref("dom.script_loader.bytecode_cache.strategy", -1); // DEFAULT
+user_pref("dom.script_loader.bytecode_cache.strategy", 0); // DEFAULT
 
 /****************************************************************************
  * SECTION: MEMORY CACHE                                                   *
@@ -269,8 +297,8 @@ user_pref("dom.script_loader.bytecode_cache.strategy", -1); // DEFAULT
 // [1] https://kb.mozillazine.org/Browser.cache.memory.capacity#-1
 // [2] https://searchfox.org/mozilla-central/source/netwerk/cache2/CacheObserver.cpp#94-125
 // [3] https://github.com/WaterfoxCo/Waterfox/commit/3fed16932c80a2f6b37d126fe10aed66c7f1c214
-//user_pref("browser.cache.memory.capacity", 131072); // (128 MB)
-//user_pref("browser.cache.memory.max_entry_size", 20480); // (20 MB); default=5120 (5 MB)
+user_pref("browser.cache.memory.capacity", 131072); // 128 MB RAM cache; alt=65536 (65 MB RAM cache); default=32768
+user_pref("browser.cache.memory.max_entry_size", 40960); // 20 MB max entry; default=5120 (5 MB)
 
 // PREF: amount of Back/Forward cached pages stored in memory for each tab
 // Pages that were recently visited are stored in memory in such a way
@@ -281,23 +309,31 @@ user_pref("dom.script_loader.bytecode_cache.strategy", -1); // DEFAULT
 // is no reason for Firefox to keep memory for this.
 // -1=determine automatically (8 pages)
 // [1] https://kb.mozillazine.org/Browser.sessionhistory.max_total_viewers#Possible_values_and_their_effects
-user_pref("browser.sessionhistory.max_total_viewers", 24);
+user_pref("browser.sessionhistory.max_total_viewers", 4); // default=8
+user_pref("browser.sessionstore.max_tabs_undo", 10); // default=25
+user_pref("browser.sessionstore.max_entries", 10); // [HIDDEN OR REMOVED]
+user_pref("dom.storage.default_quota", 40960); // 40MB; default=5120
+user_pref("dom.storage.shadow_writes", true);
+
+// PREF: tell garbage collector to start running when javascript is using xx MB of memory
+// Garbage collection releases memory back to the system.
+user_pref("javascript.options.mem.high_water_mark", 256); // DEFAULT [HIDDEN OR REMOVED]
 
 /****************************************************************************
  * SECTION: MEDIA CACHE                                                     *
 ****************************************************************************/
 
 // PREF: media disk cache
-user_pref("media.cache_size", 16384000); // DEFAULT
+user_pref("media.cache_size", 4096000); // DEFAULT
 
 // PREF: media memory cache
 // [1] https://hg.mozilla.org/mozilla-central/file/tip/modules/libpref/init/StaticPrefList.yaml#l9652
-// [2] https://github.com/arkenfox/user.js/pull/941
-user_pref("media.memory_cache_max_size", 131072); // default=8192; AF=65536; alt=131072
+// [2] https://github.com/arkenfox/user.js/pull/941#issuecomment-668278121
+user_pref("media.memory_cache_max_size", 262144); // 256 MB; default=8192; AF=65536
 
 // PREF: media cache combine sizes
-user_pref("media.memory_caches_combined_limit_kb", 1048576); // DEFAULT; alt=1048576
-user_pref("media.memory_caches_combined_limit_pc_sysmem", 25); // DEFAULT; alt=10; the percentage of system memory that Firefox can use for media caches
+user_pref("media.memory_caches_combined_limit_kb", 1048576); // 1GB; default=524288
+user_pref("media.memory_caches_combined_limit_pc_sysmem", 10); // DEFAULT; alt=10; the percentage of system memory that Firefox can use for media caches
 
 // PREF: Media Source Extensions (MSE) web standard
 // Disabling MSE allows videos to fully buffer, but you're limited to 720p.
@@ -310,23 +346,24 @@ user_pref("media.mediasource.enabled", true); // DEFAULT
 // PREF: adjust video buffering periods when not using MSE (in seconds)
 // [NOTE] Does not affect videos over 720p since they use DASH playback [1]
 // [1] https://lifehacker.com/preload-entire-youtube-videos-by-disabling-dash-playbac-1186454034
-user_pref("media.cache_readahead_limit", 7200); // 120 min; default=60; stop reading ahead when our buffered data is this many seconds ahead of the current playback
-user_pref("media.cache_resume_threshold", 3600); // 60 min; default=30; when a network connection is suspended, don't resume it until the amount of buffered data falls below this threshold
+user_pref("media.cache_readahead_limit", 600); // 10 min; default=60; stop reading ahead when our buffered data is this many seconds ahead of the current playback
+user_pref("media.cache_resume_threshold", 300); // 5 min; default=30; when a network connection is suspended, don't resume it until the amount of buffered data falls below this threshold
 
 /****************************************************************************
  * SECTION: IMAGE CACHE                                                     *
 ****************************************************************************/
 
 // PREF: image cache
-user_pref("image.cache.size", 10485760); // DEFAULT; in MiB; alt=10485760 (cache images up to 10MiB in size)
-user_pref("image.mem.decode_bytes_at_a_time", 65536); // default=16384; alt=65536; chunk size for calls to the image decoders
+user_pref("image.cache.size", 10485760); // (cache images up to 10MiB in size) [DEFAULT 5242880]
+user_pref("image.mem.decode_bytes_at_a_time", 65536); // default=16384; alt=32768; chunk size for calls to the image decoders
+user_pref("image.mem.max_decoded_image_kb", 1024000); // 500MB [HIDDEN OR REMOVED?]
 
 // PREF: set minimum timeout to unmap shared surfaces since they have been last used
-// This is only used on 32-bit builds of Firefox where there is meaningful
+// [NOTE] This is only used on 32-bit builds of Firefox where there is meaningful
 // virtual address space pressure.
 // [1] https://phabricator.services.mozilla.com/D109440
 // [2] https://bugzilla.mozilla.org/show_bug.cgi?id=1699224
-//user_pref("image.mem.shared.unmap.min_expiration_ms", 120000); // default=60000; minimum timeout to unmap shared surfaces since they have been last used
+user_pref("image.mem.shared.unmap.min_expiration_ms", 120000); // default=60000; minimum timeout to unmap shared surfaces since they have been last used
 
 /****************************************************************************
  * SECTION: NETWORK                                                         *
@@ -339,18 +376,19 @@ user_pref("image.mem.decode_bytes_at_a_time", 65536); // default=16384; alt=6553
 // [1] https://www.mail-archive.com/support-seamonkey@lists.mozilla.org/msg74561.html
 // [2] https://github.com/yokoffing/Betterfox/issues/279
 // [3] https://ra1ahq.blog/en/optimizaciya-proizvoditelnosti-mozilla-firefox
-user_pref("network.buffer.cache.size", 262144); // default=32768 (32 kb); 262144 too large
-user_pref("network.buffer.cache.count", 256); // default=24; 128 too large
+user_pref("network.buffer.cache.size", 65535); // default=32768 (32 kb); 262144 too large
+user_pref("network.buffer.cache.count", 64); // default=24; 128 too large
 
 // PREF: increase the absolute number of HTTP connections
 // [1] https://kb.mozillazine.org/Network.http.max-connections
 // [2] https://kb.mozillazine.org/Network.http.max-persistent-connections-per-server
 // [3] https://www.reddit.com/r/firefox/comments/11m2yuh/how_do_i_make_firefox_use_more_of_my_900_megabit/jbfmru6/
-user_pref("network.http.max-connections", 10000); // default=900
-user_pref("network.http.max-persistent-connections-per-server", 10000); // default=6; download connections; anything above 10 is excessive
-user_pref("network.http.max-urgent-start-excessive-connections-per-host", 10000); // default=3
-user_pref("network.http.max-persistent-connections-per-proxy", 10000); // default=32
-user_pref("network.websocket.max-connections", 10000); // DEFAULT
+user_pref("network.http.max-connections", 2048); // default=900
+user_pref("network.http.max-persistent-connections-per-server", 2048); // default=6; download connections; anything above 10 is excessive
+user_pref("network.http.max-urgent-start-excessive-connections-per-host", 2048); // default=3
+user_pref("network.http.max-persistent-connections-per-proxy", 2048); // default=32
+user_pref("network.http.request.max-start-delay", 0); // default=10
+user_pref("network.websocket.max-connections", 2048); // DEFAULT
 
 // PREF: pacing requests [FF23+]
 // Controls how many HTTP requests are sent at a time.
@@ -359,27 +397,27 @@ user_pref("network.websocket.max-connections", 10000); // DEFAULT
 // Pacing requests adds a slight delay between requests to throttle them.
 // If you have a fast machine and internet connection, disabling pacing
 // may provide a small speed boost when loading pages with lots of requests.
-// false=Firefox will send as many requests as possible without pacing
-// true=Firefox will pace requests (default)
+// false = Firefox will send as many requests as possible without pacing
+// true = Firefox will pace requests (default)
 user_pref("network.http.pacing.requests.enabled", false);
-    //user_pref("network.http.pacing.requests.min-parallelism", 10); // default=6
-    //user_pref("network.http.pacing.requests.burst", 14); // default=10
+user_pref("network.http.pacing.requests.min-parallelism", 24); // default=6
+user_pref("network.http.pacing.requests.burst", 48); // default=10
 
 // PREF: increase DNS cache
 // [1] https://developer.mozilla.org/en-US/docs/Web/Performance/Understanding_latency
-user_pref("network.dnsCacheEntries", 10000); // default=400
+user_pref("network.dnsCacheEntries", 10000); // default=800
 
 // PREF: adjust DNS expiration time
 // [ABOUT] about:networking#dns
 // [NOTE] These prefs will be ignored by DNS resolver if using DoH/TRR.
-user_pref("network.dnsCacheExpiration", 3600); // keep entries for 1 hour
-user_pref("network.dnsCacheExpirationGracePeriod", 240); // default=60; cache DNS entries for 4 minutes after they expire
+user_pref("network.dnsCacheExpiration", 3600); // keep entries for 1 hour; default=60
+user_pref("network.dnsCacheExpirationGracePeriod", 120); // default=60; cache DNS entries for 2 minutes after they expire
 
 // PREF: the number of threads for DNS
-user_pref("network.dns.max_high_priority_threads", 256); // DEFAULT [FF 123?]
-user_pref("network.dns.max_any_priority_threads", 128); // DEFAULT [FF 123?]
+user_pref("network.dns.max_high_priority_threads", 96); // DEFAULT [FF 123?]
+user_pref("network.dns.max_any_priority_threads", 48); // DEFAULT [FF 123?]
 
-// PREF: increase TLS token caching 
+// PREF: increase TLS token caching
 user_pref("network.ssl_tokens_cache_capacity", 163840); // default=2048; more TLS token caching (fast reconnects)
 
 /****************************************************************************
@@ -413,7 +451,7 @@ user_pref("network.ssl_tokens_cache_capacity", 163840); // default=2048; more TL
 // [3] https://searchfox.org/mozilla-central/rev/028c68d5f32df54bca4cf96376f79e48dfafdf08/modules/libpref/init/all.js#1280-1282
 // [4] https://www.keycdn.com/blog/resource-hints#prefetch
 // [5] https://3perf.com/blog/link-rels/#prefetch
-user_pref("network.http.speculative-parallel-limit", 0);
+user_pref("network.http.speculative-parallel-limit", 1024);
 
 // PREF: DNS prefetching for HTMLLinkElement <link rel="dns-prefetch">
 // Used for cross-origin connections to provide small performance improvements.
@@ -502,7 +540,7 @@ user_pref("network.early-hints.enabled", true);
 // performance improvements when connecting to them.
 // [NOTE] When 0, this is limited by "network.http.speculative-parallel-limit".
 user_pref("network.early-hints.preconnect.enabled", true);
-user_pref("network.early-hints.preconnect.max_connections", 10000); // DEFAULT
+user_pref("network.early-hints.preconnect.max_connections", 1024); // DEFAULT
 
 // PREF: Network Predictor (NP)
 // When enabled, it trains and uses Firefox's algorithm to preload page resource
@@ -515,11 +553,11 @@ user_pref("network.early-hints.preconnect.max_connections", 10000); // DEFAULT
 // [2] https://www.ghacks.net/2014/05/11/seer-disable-firefox/
 // [3] https://github.com/dillbyrne/random-agent-spoofer/issues/238#issuecomment-110214518
 // [4] https://www.igvita.com/posa/high-performance-networking-in-google-chrome/#predictor
-user_pref("network.predictor.enabled", true);
+user_pref("network.predictor.enabled", true); // [DEFAULT: false FF144+]
 
 // PREF: Network Predictor fetch for resources ahead of time
 // Prefetch page resources based on past user behavior.
-user_pref("network.predictor.enable-prefetch", true); // DEFAULT
+user_pref("network.predictor.enable-prefetch", true); // [FF48+] [DEFAULT: false]
 
 // PREF: make Network Predictor active when hovering over links
 // When hovering over links, Network Predictor uses past resource history to
@@ -571,7 +609,7 @@ user_pref("browser.tabs.unloadOnLowMemory", true); // DEFAULT
 // Set this to some value, e.g. 4/5 of total memory available on your system:
 // 4GB=3276, 8GB=6553, 16GB=13107, 32GB=25698, 64GB=52429
 // [1] https://dev.to/msugakov/taking-firefox-memory-usage-under-control-on-linux-4b02
-user_pref("browser.low_commit_space_threshold_mb", 3276); // default=200; WINDOWS LINUX
+user_pref("browser.low_commit_space_threshold_mb", 25698); // default=200; WINDOWS LINUX
 
 // PREF: determine when tabs unload [LINUX]
 // On Linux, Firefox checks available memory in comparison to total memory,
@@ -582,7 +620,7 @@ user_pref("browser.low_commit_space_threshold_percent", 20); // default=5; LINUX
 
 // PREF: determine how long (in ms) tabs are inactive before they unload
 // 60000=1min; 300000=5min; 600000=10min (default)
-user_pref("browser.tabs.min_inactive_duration_before_unload", 300000); // 5min; default=600000
+user_pref("browser.tabs.min_inactive_duration_before_unload", 1200000); // 5min; default=600000
 
 /****************************************************************************
  * SECTION: PROCESS COUNT                                                  *
@@ -595,694 +633,32 @@ user_pref("browser.tabs.min_inactive_duration_before_unload", 300000); // 5min; 
 // by processCount.webIsolated. Disabling fission.autostart or changing
 // fission.webContentIsolationStrategy reverts control back to processCount.
 // [1] https://www.reddit.com/r/firefox/comments/r69j52/firefox_content_process_limit_is_gone/
-// [2] https://firefox-source-docs.mozilla.org/dom/ipc/process_model.html#web-content-processes 
-user_pref("dom.ipc.processCount", 24); // DEFAULT; Shared Web Content
-user_pref("dom.ipc.processCount.webIsolated", 24); // default=4; Isolated Web Content
+// [2] https://firefox-source-docs.mozilla.org/dom/ipc/process_model.html#web-content-processes
+user_pref("dom.ipc.processCount", 12); // DEFAULT; Shared Web Content
+user_pref("dom.ipc.processCount.webIsolated", 12); // default=4; Isolated Web Content
+user_pref("dom.ipc.keepProcessesAlive.web", 12); // default=1 [HIDDEN OR REMOVED]
 
 // PREF: use one process for process preallocation cache
-user_pref("dom.ipc.processPrelaunch.fission.number", 24); // default=3; Process Preallocation Cache
-
-// PREF: configure process isolation
-// [1] https://hg.mozilla.org/mozilla-central/file/tip/dom/ipc/ProcessIsolation.cpp#l53
-// [2] https://www.reddit.com/r/firefox/comments/r69j52/firefox_content_process_limit_is_gone/
-
-// OPTION 1: isolate all websites
-// Web content is always isolated into its own `webIsolated` content process
-// based on site-origin, and will only load in a shared `web` content process
-// if site-origin could not be determined.
-user_pref("fission.webContentIsolationStrategy", 1); // DEFAULT
-user_pref("browser.preferences.defaultPerformanceSettings.enabled", true); // DEFAULT
-user_pref("dom.ipc.processCount.webIsolated", 24); // one process per site origin
-
-// OPTION 2: isolate only "high value" websites
-// Only isolates web content loaded by sites which are considered "high
-// value". A site is considered high value if it has been granted a
-// `highValue*` permission by the permission manager, which is done in
-// response to certain actions.
-//user_pref("fission.webContentIsolationStrategy", 2);
-//user_pref("browser.preferences.defaultPerformanceSettings.enabled", false);
-//user_pref("dom.ipc.processCount.webIsolated", 1); // one process per site origin (high value)
-//user_pref("dom.ipc.processCount", 8); // determine by number of CPU cores/processors
-
-// OPTION 3: do not isolate websites
-// All web content is loaded into a shared `web` content process. This is
-// similar to the non-Fission behavior; however, remote subframes may still
-// be used for sites with special isolation behavior, such as extension or
-// mozillaweb content processes.
-//user_pref("fission.webContentIsolationStrategy", 0);
-//user_pref("browser.preferences.defaultPerformanceSettings.enabled", false);
-//user_pref("dom.ipc.processCount", 8); // determine by number of CPU cores/processors
-
-
-/****************************************************************************
- * Peskyfox                                                                 *
- * "Aquila non capit muscas"                                                *
- * priority: remove annoyances                                              *
- * version: 142                                                             *
- * url: https://github.com/yokoffing/Betterfox                              *
- * credit: Some prefs are reproduced and adapted from the arkenfox project  *
- * credit urL: https://github.com/arkenfox/user.js                          *
- ***************************************************************************/
-
-/****************************************************************************
- * SECTION: MOZILLA UI                                                      *
-****************************************************************************/
-
-// PREF: Mozilla VPN
-// [1] https://github.com/yokoffing/Betterfox/issues/169
-user_pref("browser.privatebrowsing.vpnpromourl", "");
-    //user_pref("browser.vpn_promo.enabled", false);
-
-// PREF: disable about:addons' Recommendations pane (uses Google Analytics)
-user_pref("extensions.getAddons.showPane", false); // HIDDEN
-
-// PREF: disable recommendations in about:addons' Extensions and Themes panes
-user_pref("extensions.htmlaboutaddons.recommendations.enabled", false);
-
-// PREF: Personalized Extension Recommendations in about:addons and AMO
-// [NOTE] This pref has no effect when Health Reports are disabled.
-// [SETTING] Privacy & Security>Firefox Data Collection & Use>Allow Firefox to make personalized extension recommendations
-user_pref("browser.discovery.enabled", false);
-
-// PREF: disable Firefox from asking to set as the default browser
-// [1] https://github.com/yokoffing/Betterfox/issues/166
-user_pref("browser.shell.checkDefaultBrowser", false);
-
-// PREF: disable Extension Recommendations (CFR: "Contextual Feature Recommender")
-// [1] https://support.mozilla.org/en-US/kb/extension-recommendations
-user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
-user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
-
-// PREF: hide "More from Mozilla" in Settings
-user_pref("browser.preferences.moreFromMozilla", false);
-
-// PREF: tab and about:config warnings
-//user_pref("browser.tabs.warnOnClose", false); // DEFAULT [FF94+]
-//user_pref("browser.tabs.warnOnCloseOtherTabs", true); // DEFAULT
-//user_pref("browser.tabs.warnOnOpen", true); // DEFAULT
-user_pref("browser.aboutConfig.showWarning", false);
-
-// PREF: disable welcome notices
-user_pref("browser.startup.homepage_override.mstone", "ignore"); // What's New page after updates; master switch
-user_pref("browser.aboutwelcome.enabled", false); // disable Intro screens
-user_pref("startup.homepage_welcome_url", "");
-user_pref("startup.homepage_welcome_url.additional", "");
-user_pref("startup.homepage_override_url", ""); // What's New page after updates
-
-// PREF: disable "What's New" toolbar icon [FF69+]
-user_pref("browser.messaging-system.whatsNewPanel.enabled", false);
-
-// PREF: new profile switcher
-user_pref("browser.profiles.enabled", true);
-
-// PREF: use native title bar buttons [LINUX]
-// [1] https://github.com/yokoffing/Betterfox/issues/320
-user_pref("widget.gtk.non-native-titlebar-buttons.enabled", true);
-
-/****************************************************************************
- * SECTION: THEME ADJUSTMENTS                                              *
-****************************************************************************/
-
-// PREF: enable Firefox to use userChome, userContent, etc.
-user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-
-// PREF: add compact mode back to options
-user_pref("browser.compactmode.show", true);
-
-// PREF: preferred color scheme for websites
-// [SETTING] General>Language and Appearance>Website appearance
-// By default, color scheme matches the theme of your browser toolbar (3).
-// Set this pref to choose Dark on sites that support it (0) or Light (1).
-// Before FF95, the pref was 2, which determined site color based on OS theme.
-// Dark (0), Light (1), System (2), Browser (3) [DEFAULT FF95+]
-// [1] https://www.reddit.com/r/firefox/comments/rfj6yc/how_to_stop_firefoxs_dark_theme_from_overriding/hoe82i5/?context=3
-user_pref("layout.css.prefers-color-scheme.content-override", 0);
-
-// PREF: disable always using dark theme for private browsing windows [FF106+]
-user_pref("browser.theme.dark-private-windows", true);
-
-// PREF: prevent private windows being separate from normal windows in taskbar [WINDOWS] [FF106+]
-user_pref("browser.privateWindowSeparation.enabled", false);
-
-// PREF: show search bar [FF122+]
-// Mozilla has removed the search bar option from the settings window.
-//user_pref("browser.search.widget.inNavBar", true);
-
-// PREF: new tab page wallpapers
-//user_pref("browser.newtabpage.activity-stream.newtabWallpapers.v2.enabled", true); // [DEFAULT FF132+]
-
-/****************************************************************************
- * SECTION: AI                                                              *
-****************************************************************************/
-// PREF: AI master switch
-// [1] https://github.com/yokoffing/Betterfox/issues/416
-user_pref("browser.ml.enable", false);
-
-// PREF: AI chat
-user_pref("browser.ml.chat.enabled", false);
-
-// PREF: link previews
-user_pref("browser.ml.linkPreview.enabled", false);
-
-// PREF: AI-enhanced tab groups
-// [1] https://support.mozilla.org/kb/how-use-ai-enhanced-tab-groups
-user_pref("browser.tabs.groups.smart.enabled", false);
-
-/****************************************************************************
- * SECTION: COOKIE BANNER HANDLING                                          *
-****************************************************************************/
-
-// PREF: Cookie Banner handling
-// [DEPRECIATED] Future of the project is unclear. See [5] and [6].
-// [NOTE] Feature still enforces Total Cookie Protection to limit 3rd-party cookie tracking [1]
-// [1] https://github.com/mozilla/cookie-banner-rules-list/issues/33#issuecomment-1318460084
-// [2] https://phabricator.services.mozilla.com/D153642
-// [3] https://winaero.com/make-firefox-automatically-click-on-reject-all-in-cookie-banner-consent/
-// [4] https://docs.google.com/spreadsheets/d/1Nb4gVlGadyxix4i4FBDnOeT_eJp2Zcv69o-KfHtK-aA/edit#gid=0
-// [5] https://bugzilla.mozilla.org/show_bug.cgi?id=1940418
-// [6] https://github.com/mozilla/cookie-banner-rules-list/issues/544
-// 2: reject banners if it is a one-click option; otherwise, fall back to the accept button to remove banner
-// 1: reject banners if it is a one-click option; otherwise, keep banners on screen
-// 0: disable all cookie banner handling
-user_pref("cookiebanners.service.mode", 1);
-user_pref("cookiebanners.service.mode.privateBrowsing", 1);
-
-// PREF: Cookie Banner global rules
-// Global rules that can handle a list of cookie banner libraries and providers on any site.
-// This is used for click rules that can handle common Consent Management Providers (CMP).
-user_pref("cookiebanners.service.enableGlobalRules", true); // DEFAULT [FF121+]
-user_pref("cookiebanners.service.enableGlobalRules.subFrames", true); // DEFAULT [FF121+]
-
-/****************************************************************************
- * SECTION: TRANSLATIONS                                                    *
-****************************************************************************/
-
-// PREF: Firefox Translations [FF118+]
-// Automated translation of web content is done locally in Firefox, so that
-// the text being translated does not leave your machine.
-// [ABOUT] Visit about:translations to translate your own text as well.
-// [1] https://blog.mozilla.org/en/mozilla/local-translation-add-on-project-bergamot/
-// [2] https://blog.nightly.mozilla.org/2023/06/01/firefox-translations-and-other-innovations-these-weeks-in-firefox-issue-139/
-// [3] https://www.ghacks.net/2023/08/02/mozilla-firefox-117-beta-brings-an-automatic-language-translator-for-websites-and-it-works-offline/
-user_pref("browser.translations.enable", false); // DEFAULT
-user_pref("browser.translations.autoTranslate", false);
-
-/****************************************************************************
- * SECTION: FULLSCREEN NOTICE                                               *
-****************************************************************************/
-
-// PREF: remove fullscreen delay
-user_pref("full-screen-api.transition-duration.enter", "0 0"); // default=200 200
-user_pref("full-screen-api.transition-duration.leave", "0 0"); // default=200 200
-
-// PREF: disable fullscreen notice
-user_pref("full-screen-api.warning.delay", -1); // default=500
-user_pref("full-screen-api.warning.timeout", 0); // default=3000
-
-/****************************************************************************
- * SECTION: FONT APPEARANCE                                                 *
-****************************************************************************/
-
-// PREF: smoother font
-// [1] https://reddit.com/r/firefox/comments/wvs04y/windows_11_firefox_v104_font_rendering_different/?context=3
-//user_pref("gfx.webrender.quality.force-subpixel-aa-where-possible", true);
-
-// PREF: use DirectWrite everywhere like Chrome [WINDOWS]
-// [1] https://kb.mozillazine.org/Thunderbird_6.0,_etc.#Font_rendering_and_performance_issues
-// [2] https://reddit.com/r/firefox/comments/wvs04y/comment/ilklzy1/?context=3
-//user_pref("gfx.font_rendering.cleartype_params.rendering_mode", 5);
-//user_pref("gfx.font_rendering.cleartype_params.cleartype_level", 100);
-//user_pref("gfx.font_rendering.cleartype_params.force_gdi_classic_for_families", ""); // DEFAULT FF135+
-//user_pref("gfx.font_rendering.directwrite.use_gdi_table_loading", false);
-// Some users find these helpful:
-    //user_pref("gfx.font_rendering.cleartype_params.gamma", 1750);
-    //user_pref("gfx.font_rendering.cleartype_params.enhanced_contrast", 100);
-    //user_pref("gfx.font_rendering.cleartype_params.pixel_structure", 1);
-
-// PREF: use macOS Appearance Panel text smoothing setting when rendering text [macOS]
-//user_pref("gfx.use_text_smoothing_setting", true);
-
-/****************************************************************************
- * SECTION: URL BAR                                                         *
-****************************************************************************/
-
-// PREF: minimize URL bar suggestions (bookmarks, history, open tabs)
-// Dropdown options in the URL bar:
-user_pref("browser.urlbar.suggest.history", false);
-user_pref("browser.urlbar.suggest.bookmark", true); // DEFAULT
-user_pref("browser.urlbar.suggest.clipboard", false);
-user_pref("browser.urlbar.suggest.openpage", false);
-user_pref("browser.urlbar.suggest.engines", false);
-user_pref("browser.urlbar.suggest.searches", false);
-user_pref("browser.urlbar.quickactions.enabled", false);
-user_pref("browser.urlbar.shortcuts.quickactions", false);
-user_pref("browser.urlbar.suggest.weather", true); // DEFAULT [FF108]
-user_pref("browser.urlbar.weather.ignoreVPN", false); // DEFAULT
-user_pref("browser.urlbar.suggest.calculator", true); // [DEFAULT FF137+]
-user_pref("browser.urlbar.unitConversion.enabled", true); // [DEFAULT FF141+]
-
-// PREF: disable dropdown suggestions with empty query
-user_pref("browser.urlbar.suggest.topsites", false);
-
-// PREF: disable urlbar trending search suggestions [FF118+]
-// [SETTING] Search>Search Suggestions>Show trending search suggestions (FF119)
-user_pref("browser.urlbar.trending.featureGate", false);
-user_pref("browser.urlbar.suggest.trending", false);
-
-// PREF: disable urlbar suggestions
-user_pref("browser.urlbar.addons.featureGate", false); // [FF115+]
-user_pref("browser.urlbar.amp.featureGate", false); // [FF141+] adMarketplace
-user_pref("browser.urlbar.fakespot.featureGate", false); // [FF130+] [DEFAULT: false]
-user_pref("browser.urlbar.mdn.featureGate", false); // [FF117+] [HIDDEN PREF]
-user_pref("browser.urlbar.weather.featureGate", false); // [FF108+] [DEFAULT: false]
-user_pref("browser.urlbar.wikipedia.featureGate", false); // [FF141+]
-user_pref("browser.urlbar.clipboard.featureGate", false); // [FF118+] [DEFAULT: true FF125+]
-user_pref("browser.urlbar.yelp.featureGate", false); // [FF124+] [DEFAULT: false]
-
-// PREF: disable recent searches [FF120+]
-// [NOTE] Recent searches are cleared with history.
-// [1] https://support.mozilla.org/kb/search-suggestions-firefox
-user_pref("browser.urlbar.recentsearches.featureGate", false);
-
-// PREF: disable tab-to-search [FF85+]
-// Alternatively, you can exclude on a per-engine basis by unchecking them in Options>Search
-// [SETTING] Privacy & Security>Address Bar>When using the address bar, suggest>Search engines
-user_pref("browser.urlbar.suggest.engines", false);
-
-// PREF: Adaptive History Autofill
-// [1] https://docs.google.com/document/u/1/d/e/2PACX-1vRBLr_2dxus-aYhZRUkW9Q3B1K0uC-a0qQyE3kQDTU3pcNpDHb36-Pfo9fbETk89e7Jz4nkrqwRhi4j/pub
-user_pref("browser.urlbar.autoFill", true); // [DEFAULT]
-user_pref("browser.urlbar.autoFill.adaptiveHistory.enabled", true);
-
-// PREF: adjust the amount of Address bar / URL bar dropdown results
-// This value controls the total number of entries to appear in the location bar dropdown.
-// [NOTE] Items (bookmarks/history/openpages) with a high "frequency"/"bonus" will always
-// be displayed (no we do not know how these are calculated or what the threshold is),
-// and this does not affect the search by search engine suggestion.
-// disable=0
-user_pref("browser.urlbar.maxRichResults", 5); // default=10
-
-// PREF: text fragments
-// [WARNING] Enabling can cause tab crashes [4]
-// [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1753933#c6
-// [2] https://developer.mozilla.org/en-US/docs/Web/Text_fragments
-// [3] https://web.dev/articles/text-fragments
-// [4] https://github.com/yokoffing/Betterfox/issues/397
-user_pref("dom.text_fragments.enabled", true); // [DEFAULT]
-user_pref("dom.text_fragments.create_text_fragment.enabled", true);
-
-/****************************************************************************
- * SECTION: AUTOPLAY                                                        *
-****************************************************************************/
-
-// PREF: do not autoplay media audio
-// [NOTE] You can set exceptions under site permissions
-// [SETTING] Privacy & Security>Permissions>Autoplay>Settings>Default for all websites
-// 0=Allow all, 1=Block non-muted media (default), 5=Block all
-//user_pref("media.autoplay.default", 1); // DEFAULT
-//user_pref("media.block-autoplay-until-in-foreground", true); // DEFAULT
-
-// PREF: disable autoplay of HTML5 media if you interacted with the site [FF78+]
-// 0=sticky (default), 1=transient, 2=user
-// Firefox's Autoplay Policy Documentation (PDF) is linked below via SUMO
-// [NOTE] If you have trouble with some video sites (e.g. YouTube), then add an exception (see previous PREF)
-// [1] https://support.mozilla.org/questions/1293231
-//user_pref("media.autoplay.blocking_policy", 2);
-
-/****************************************************************************
- * SECTION: NEW TAB PAGE                                                    *
-****************************************************************************/
-
-// PREF: startup / new tab page
-// 0=blank, 1=home, 2=last visited page, 3=resume previous session
-// [NOTE] Session Restore is cleared with history and not used in Private Browsing mode
-// [SETTING] General>Startup>Open previous windows and tabs
-user_pref("browser.startup.page", 0);
-
-// PREF: set HOME+NEW WINDOW page to blank tab
-// about:home=Activity Stream, custom URL, about:blank
-// [SETTING] Home>New Windows and Tabs>Homepage and new windows
-// [Custom URLs] Set two or more websites in Home Page Field – delimited by |
-// [1] https://support.mozilla.org/en-US/questions/1271888#answer-1262899
-user_pref("browser.startup.homepage", "about:blank");
-
-// PREF: set NEWTAB page to blank tab
-// true=Firefox Home, false=blank page
-// [SETTING] Home>New Windows and Tabs>New tabs
-user_pref("browser.newtabpage.enabled", false);
-
-// PREF: Pinned Shortcuts on New Tab
-// [SETTINGS] Home>Firefox Home Content
-// [1] https://github.com/arkenfox/user.js/issues/1556
-user_pref("browser.newtabpage.activity-stream.discoverystream.enabled", false);
-user_pref("browser.newtabpage.activity-stream.showSearch", true); // NTP Web Search [DEFAULT]
-user_pref("browser.newtabpage.activity-stream.feeds.topsites", false); // Shortcuts
-user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false); // Sponsored shortcuts [FF83+]
-user_pref("browser.newtabpage.activity-stream.showWeather", false); // Weather [FF130+]
-user_pref("browser.newtabpage.activity-stream.system.showWeather", false); // hides Weather as an UI option
-user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false); // Recommended by Pocket
-user_pref("browser.newtabpage.activity-stream.showSponsored", false); // Sponsored stories [FF58+]  
-user_pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false); // [FF140+] Support Firefox
-user_pref("browser.newtabpage.activity-stream.feeds.section.highlights", false); // Recent Activity [DEFAULT]
-user_pref("browser.newtabpage.activity-stream.section.highlights.includeBookmarks", false);
-user_pref("browser.newtabpage.activity-stream.section.highlights.includeDownloads", false);
-user_pref("browser.newtabpage.activity-stream.section.highlights.includePocket", false);
-user_pref("browser.newtabpage.activity-stream.section.highlights.includeVisited", false);
-user_pref("browser.newtabpage.activity-stream.feeds.snippets", false); // [DEFAULT]
-
-// PREF: wallpapers on New Tab [FF128+ NIGHTLY]
-user_pref("browser.newtabpage.activity-stream.newtabWallpapers.enabled", false); // Wallpapers
-
-// PREF: clear default topsites
-// [NOTE] This does not block you from adding your own.
-user_pref("browser.newtabpage.activity-stream.default.sites", "");
-
-// PREF: keep search in the search box; prevent from jumping to address bar
-// [1] https://www.reddit.com/r/firefox/comments/oxwvbo/firefox_start_page_search_options/
-//user_pref("browser.newtabpage.activity-stream.improvesearch.handoffToAwesomebar", false);
-      
-// PREF: Firefox logo to always show
-//user_pref("browser.newtabpage.activity-stream.logowordmark.alwaysVisible", true); // DEFAULT
-
-// PREF: Bookmarks Toolbar visibility
-// always, never, or newtab
-//user_pref("browser.toolbars.bookmarks.visibility", "newtab"); // DEFAULT
-
-/******************************************************************************
- * SECTION: POCKET                                                            *
-******************************************************************************/
-
-// PREF: Disable built-in Pocket extension
-user_pref("extensions.pocket.enabled", false);
-user_pref("extensions.pocket.api"," ");
-user_pref("extensions.pocket.oAuthConsumerKey", " ");
-user_pref("extensions.pocket.site", " ");
-user_pref("extensions.pocket.showHome", false);
-
-/******************************************************************************
- * SECTION: DOWNLOADS                                 *
-******************************************************************************/
-
-// PREF: choose download location
-// [SETTING] To set your default "downloads": General>Downloads>Save files to...
-// 0=desktop, 1=downloads (default), 2=last used
-//user_pref("browser.download.folderList", 1); // DEFAULT
-
-// PREF: always ask how to handle new mimetypes [FF101+]
-// Enforce user interaction for greater security.
-// [SETTING] General>Files and Applications>Applications>What should Firefox do with other files?
-// false=Save files
-// true=Ask whether to open or save files
-//user_pref("browser.download.always_ask_before_handling_new_types", true);
-
-// PREF: always ask where to download
-// [OPTIONAL HARDENING] Enforce user interaction for greater security.
-// [SETTING] General>Files and Applications>Downloads>Always ask you where to save files
-// [DIALOGUE] "Ask whether to open or save files"
-// true=direct download (default)
-// false=the user is asked what to do
-// [1] https://github.com/yokoffing/Betterfox/issues/267
-//user_pref("browser.download.useDownloadDir", false);
-    //user_pref("browser.download.dir", "C:\Users\<YOUR_USERNAME>\AppData\Local\Temp"); // [WINDOWS]
-
-// PREF: autohide the downloads button
-//user_pref("browser.download.autohideButton", true); // DEFAULT
-
-// PREF: disable download panel opening on every download [non-functional?]
-// Controls whether to open the download panel every time a download begins.
-// [NOTE] The first download ever ran in a new profile will still open the panel.
-//user_pref("browser.download.alwaysOpenPanel", false);
-
-// PREF: disable adding downloads to the system's "recent documents" list 
-user_pref("browser.download.manager.addToRecentDocs", false);
-
-/****************************************************************************
- * SECTION: PDF                                                             *
-****************************************************************************/
-
-// PREF: enforce Firefox's built-in PDF reader
-// This setting controls if the option "Display in Firefox" is available in the setting below
-// and by effect controls whether PDFs are handled in-browser or externally ("Ask" or "Open With").
-// [1] https://mozilla.github.io/pdf.js/
-user_pref("pdfjs.disabled", false); // DEFAULT
-
-// PREF: allow viewing of PDFs even if the response HTTP headers
-// include Content-Disposition:attachment. 
-user_pref("browser.helperApps.showOpenOptionForPdfJS", true); // DEFAULT
-
-// PREF: open PDFs inline (FF103+)
-user_pref("browser.download.open_pdf_attachments_inline", true);
-
-// PREF: PDF sidebar on load
-// 2=table of contents (if not available, will default to 1)
-// 1=view pages
-// 0=disabled
-// -1=remember previous state (default)
-user_pref("pdfjs.sidebarViewOnLoad", 2);
-
-// PREF: default zoom for PDFs [HIDDEN]
-// [NOTE] "page-width" not needed if using sidebar on load
-//user_pref("pdfjs.defaultZoomValue", page-width);
-
-/****************************************************************************
- * SECTION: TAB BEHAVIOR                                                    *
-****************************************************************************/
-
-// PREF: search query opens in a new tab (instead of the current tab)
-//user_pref("browser.search.openintab", true); // SEARCH BOX
-//user_pref("browser.urlbar.openintab", true); // URL BAR
-
-// PREF: control behavior of links that would normally open in a new window
-// [NOTE] You can still right-click a link and open in a new window
-// 3 (default) = in a new tab; pop-up windows are treated like regular tabs
-// 2 = in a new window
-// 1 = in the current tab
-//user_pref("browser.link.open_newwindow", 3); // DEFAULT
-
-// PREF: determine the behavior of pages opened by JavaScript (like popups)
-// 2 (default) = catch new windows opened by JavaScript that do not have
-// specific values set (how large the window should be, whether it
-// should have a status bar, etc.) 
-// 1 = let all windows opened by JavaScript open in new windows
-// 0 = force all new windows opened by JavaScript into tabs
-// [NOTE] Most advertising popups also open in new windows with values set
-// [1] https://kb.mozillazine.org/About:config_entries
-//user_pref("browser.link.open_newwindow.restriction", 0);
-
-// PREF: override <browser.link.open_newwindow> for external links
-// Set if a different destination for external links is needed
-// 3=Open in a new tab in the current window
-// 2=Open in a new window
-// 1=Open in the current tab/window
-// -1=no overrides (default)
-//user_pref("browser.link.open_newwindow.override.external", -1); // DEFAULT
-
-// PREF: focus behavior for new tabs from links
-// Determine whether a link opens in the foreground or background on left-click
-// [SETTINGS] Settings>General>Tabs>"When you open a link, image or media in a new tab, switch to it immediately"
-// true(default) = opens new tabs by left-click in the background, leaving focus on the current tab
-// false = opens new tabs by left-click in the foreground, putting focus on the new tab
-// [NOTE] CTRL+SHIFT+CLICK will open new tabs in foreground (default); switching PREF to false will reverse this behavior
-// [1] https://kb.mozillazine.org/About:config_entries
-//user_pref("browser.tabs.loadInBackground", true); // DEFAULT
-
-// PREF: determines whether pages normally meant to open in a new window (such as
-// target="_blank" or from an external program), but that have instead been loaded in a new tab
-// This pref takes effect when Firefox has diverted a new window to a new tab instead, then:
-// true = loads the new tab in the background, leaving focus on the current tab
-// false(default) = loads the new tab in the foreground, taking the focus from the current tab
-// [NOTE] Setting this preference to true will still bring the browser to the front when opening links from outside the browser
-// [1] https://kb.mozillazine.org/About:config_entries
-//user_pref("browser.tabs.loadDivertedInBackground", false); // DEFAULT
-
-// PREF: force bookmarks to open in a new tab, not the current tab
-//user_pref("browser.tabs.loadBookmarksInTabs", true);
-    //user_pref("browser.tabs.loadBookmarksInBackground", true); // load bookmarks in background
-
-// PREF: leave Bookmarks Menu open when selecting a site
-user_pref("browser.bookmarks.openInTabClosesMenu", false);
-
-// PREF: restore "View image info" on right-click
-user_pref("browser.menu.showViewImageInfo", true);
-
-// PREF: show all matches in Findbar
-user_pref("findbar.highlightAll", true);
-
-// PREF: force disable finding text on page without prompting
-// [NOTE] Not as powerful as using Ctrl+F.
-// [SETTINGS] General>Browsing>"Search for text when you start typing"
-// [1] https://github.com/yokoffing/Betterfox/issues/212
-//user_pref("accessibility.typeaheadfind", false); // enforce DEFAULT
-
-// PREF: disable middle mouse click opening links from clipboard
-// It's been default in Linux since at least FF102.
-// [1] https://gitlab.torproject.org/tpo/applications/tor-browser/-/issues/10089
-//user_pref("middlemouse.contentLoadURL", false);
-
-// PREF: Prevent scripts from moving and resizing open windows
-//user_pref("dom.disable_window_move_resize", true);
-
-// PREF: insert new tabs after groups like it
-// true(default) = open new tabs to the right of the parent tab
-// false = new tabs are opened at the far right of the tab bar
-//user_pref("browser.tabs.insertRelatedAfterCurrent", true); // DEFAULT
-
-// PREF: insert new tabs immediately after the current tab
-//user_pref("browser.tabs.insertAfterCurrent", true);
-
-// PREF: leave the browser window open even after you close the last tab
-//user_pref("browser.tabs.closeWindowWithLastTab", false);
-
-// PREF: stop websites from reloading pages automatically
-// [WARNING] Breaks some sites.
-// [1] https://www.ghacks.net/2018/08/19/stop-websites-from-reloading-pages-automatically/
-//user_pref("accessibility.blockautorefresh", true);
-//user_pref("browser.meta_refresh_when_inactive.disabled", true);
-
-// PREF: do not select the space next to a word when selecting a word
-user_pref("layout.word_select.eat_space_to_next_word", false);
-
-// PREF: controls if a double-click word selection also deletes one adjacent whitespace
-// This mimics native behavior on macOS.
-//user_pref("editor.word_select.delete_space_after_doubleclick_selection", true);
-
-// PREF: do not hide the pointer while typing [LINUX]
-user_pref("widget.gtk.hide-pointer-while-typing.enabled", false);
-
-// PREF: limit events that can cause a pop-up
-// Firefox provides an option to provide exceptions for sites, remembered in your Site Settings.
-// (default) "change click dblclick auxclick mouseup pointerup notificationclick reset submit touchend contextmenu"
-// (alternate) user_pref("dom.popup_allowed_events", "click dblclick mousedown pointerdown");
-user_pref("dom.popup_allowed_events", "click dblclick");
-user_pref("dom.disable_open_during_load", true); // DEFAULT
-user_pref("privacy.popups.showBrowserMessage", true); // DEFAULT
-
-// PREF: enable Tab Previews [FF122+, FF128+]
-// [1] https://github.com/yokoffing/Betterfox/issues/309
-user_pref("browser.tabs.hoverPreview.enabled", true);
-user_pref("browser.tabs.hoverPreview.showThumbnails", true); // DEFAULT
-
-/****************************************************************************
- * SECTION: KEYBOARD AND SHORTCUTS                                          *
- ****************************************************************************/
-
-// PREF: disable backspace action
-// 0=previous page, 1=scroll up, 2=do nothing
-//user_pref("browser.backspace_action", 2); // DEFAULT
-
-// PREF: disable ALT key toggling the menu bar
-//user_pref("ui.key.menuAccessKeyFocuses", false);
-    //user_pref("ui.key.menuAccessKey", 18); // DEFAULT
-
-// PREF: cycle through tabs in recently used order
-// [SETTING] Ctrl+Tab cycles through tabs in recently used order
-//user_pref("browser.ctrlTab.sortByRecentlyUsed", true);
-
-// PREF: disable websites overriding Firefox's keyboard shortcuts [FF58+]
-// 0=ask (default), 1=allow, 2=block
-// [SETTING] to add site exceptions: Ctrl+I>Permissions>Override Keyboard Shortcuts ***/
-//user_pref("permissions.default.shortcuts", 2);
-
-// PREF: hide frequent sites on right-click of taskbar icon [WINDOWS?]
-//user_pref("browser.taskbar.lists.frequent.enabled", false);
-
-/****************************************************************************
- * SECTION: ACCESSIBILITY AND USABILITY                                     *
- ****************************************************************************/
-
-// PREF: disable Reader mode parse on load
-// Reader supposedly costs extra CPU after page load.
-// [TIP] Use about:reader?url=%s as a keyword to open links automatically in reader mode [1].
-// Firefox will not have to parse webpage for Reader when navigating.
-// Extremely minimal performance impact, if you disable.
-// [1] https://www.reddit.com/r/firefox/comments/621sr2/i_found_out_how_to_automatically_open_a_url_in/ 
-user_pref("reader.parse-on-load.enabled", true);
-
-// PREF: Spell-check
-// 0=none, 1-multi-line, 2=multi-line & single-line
-user_pref("layout.spellcheckDefault", 2); // DEFAULT
-
-// PREF: Spell Checker underline styles [HIDDEN]
-// [1] https://kb.mozillazine.org/Ui.SpellCheckerUnderlineStyle#Possible_values_and_their_effects
-user_pref("ui.SpellCheckerUnderlineStyle", 1);
-
-// PREF: remove underlined characters from various settings
-user_pref("ui.key.menuAccessKey", 0);
-
-// PREF: enable CSS moz document rules
-// Still needed for Stylus?
-// [1] https://reddit.com/r/FirefoxCSS/comments/8x2q97/reenabling_mozdocument_rules_in_firefox_61/
-user_pref("layout.css.moz-document.content.enabled", true);
-
-/****************************************************************************
- * SECTION: BOOKMARK MANAGEMENT                                             *
- ****************************************************************************/
-
-// PREF: limit the number of bookmark backups Firefox keeps
-//user_pref("browser.bookmarks.max_backups", 1); // default=15
-
-/****************************************************************************
- * SECTION: ZOOM AND DISPLAY SETTINGS                                       *
- ****************************************************************************/
-
-// PREF: zoom only text on webpage, not other elements
-//user_pref("browser.zoom.full", false);
-
-// PREF: allow for more granular control of zoom levels
-// Especially useful if you want to set your default zoom to a custom level.
-//user_pref("toolkit.zoomManager.zoomValues", ".3,.5,.67,.8,.9,.95,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,2,2.4,3");
-
-// PREF: restore zooming behavior [macOS] [FF109+]
-// On macOS, Ctrl or Cmd + trackpad or mouse wheel now scrolls the page instead of zooming.
-// This avoids accidental zooming and matches Safari's and Chrome's behavior.
-// The prefs below restores the previous zooming behavior
-//user_pref("mousewheel.with_control.action", 3);
-//user_pref("mousewheel.with_meta.action", 3);
-
-// PREF: adjust the minimum tab width
-// Can be overridden by userChrome.css
-//user_pref("browser.tabs.tabMinWidth", 120); // default=76
-
-// PREF: always underline links [FF120+]
-user_pref("layout.css.always_underline_links", false); // DEFAULT
-
-/****************************************************************************
- * SECTION: DEVELOPER TOOLS                                                 *
- ****************************************************************************/
-
-// PREF: wrap long lines of text when using source / debugger
-user_pref("view_source.wrap_long_lines", true);
-user_pref("devtools.debugger.ui.editor-wrapping", true);
-
-// PREF: enable ASRouter Devtools at about:newtab#devtools
-// This is useful if you're making your own CSS theme.
-// [1] https://firefox-source-docs.mozilla.org/browser/components/newtab/content-src/asrouter/docs/debugging-docs.html
-user_pref("browser.newtabpage.activity-stream.asrouter.devtoolsEnabled", true);
-
-// show user agent styles in the inspector
-user_pref("devtools.inspector.showUserAgentStyles", true);
-
-// show native anonymous content (like scrollbars or tooltips) and user
-// agent shadow roots (like the components of an <input> element) in the inspector
-user_pref("devtools.inspector.showAllAnonymousContent", true);
-
-/****************************************************************************
- * SECTION: IMAGE AND MEDIA HANDLING                                        *
- ****************************************************************************/
-
-// PREF: JPEG XL image format [NIGHTLY]
-// May not affect anything on ESR/Stable channel [2].
-// [TEST] https://www.jpegxl.io/firefox#firefox-jpegxl-tutorial
-// [1] https://cloudinary.com/blog/the-case-for-jpeg-xl
-// [2] https://bugzilla.mozilla.org/show_bug.cgi?id=1539075#c51
-user_pref("image.jxl.enabled", true);
-
+user_pref("dom.ipc.processPrelaunch.fission.number", 12); // default=3; Process Preallocation Cache
+
+user_pref("apz.overscroll.enabled", true); // DEFAULT NON-LINUX
+user_pref("general.smoothScroll", true); // DEFAULT
+user_pref("general.smoothScroll.msdPhysics.continuousMotionMaxDeltaMS", 12);
+user_pref("general.smoothScroll.msdPhysics.enabled", true);
+user_pref("general.smoothScroll.msdPhysics.motionBeginSpringConstant", 600);
+user_pref("general.smoothScroll.msdPhysics.regularSpringConstant", 650);
+user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaMS", 25);
+user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaRatio", "2");
+user_pref("general.smoothScroll.msdPhysics.slowdownSpringConstant", 250);
+user_pref("general.smoothScroll.currentVelocityWeighting", "1");
+user_pref("general.smoothScroll.stopDecelerationWeighting", "1");
+user_pref("mousewheel.default.delta_multiplier_y", 300); // 250-400; adjust this number to your liking
 
 /****************************************************************************
  * Securefox                                                                *
- * "Natura non contristatur"                                                *     
+ * "Natura non contristatur"                                                *
  * priority: provide sensible security and privacy                          *
- * version: 142                                                             *
+ * version: 146                                                             *
  * url: https://github.com/yokoffing/Betterfox                              *
  * credit: Most prefs are reproduced and adapted from the arkenfox project  *
  * credit urL: https://github.com/arkenfox/user.js                          *
@@ -1291,22 +667,19 @@ user_pref("image.jxl.enabled", true);
 /****************************************************************************
  * SECTION: TRACKING PROTECTION                                             *
 ****************************************************************************/
-
-// PREF: Enhanced Tracking Protection (ETP)
-// Tracking Content blocking will strip cookies and block all resource requests to domains listed in Disconnect.me.
-// Firefox deletes all stored site data (incl. cookies, browser storage) if the site is a known tracker and hasn’t
-// been interacted with in the last 30 days.
-// [ALLOWLIST] https://disconnect.me/trackerprotection/unblocked
-// [NOTE] FF86: "Strict" tracking protection enables dFPI.
-// [1] https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop
-// [2] https://www.reddit.com/r/firefox/comments/l7xetb/network_priority_for_firefoxs_enhanced_tracking/gle2mqn/?web2x&context=3
-user_pref("browser.contentblocking.category", "strict"); // [HIDDEN]
-// [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1970647
-user_pref("privacy.trackingprotection.allow_list.baseline.enabled", true); // [FF142+]
-user_pref("privacy.trackingprotection.allow_list.convenience.enabled", true); // [FF142+]
+// PREF: enable ETP Strict Mode [FF86+]
+// ETP Strict Mode enables Total Cookie Protection (TCP)
+// [NOTE] Adding site exceptions disables all ETP protections for that site and increases the risk of
+// cross-site state tracking e.g. exceptions for SiteA and SiteB means PartyC on both sites is shared
+// [1] https://blog.mozilla.org/security/2021/02/23/total-cookie-protection/
+// [2] https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop
+// [3] https://www.reddit.com/r/firefox/comments/l7xetb/network_priority_for_firefoxs_enhanced_tracking/gle2mqn/?web2x&context=3
+// [SETTING] to add site exceptions: Urlbar>ETP Shield
+// [SETTING] to manage site exceptions: Options>Privacy & Security>Enhanced Tracking Protection>Manage Exceptions
+user_pref("browser.contentblocking.category", "strict"); // [HIDDEN PREF]
 user_pref("privacy.trackingprotection.enabled", true); // enabled with "Strict"
 user_pref("privacy.trackingprotection.pbmode.enabled", true); // DEFAULT
-user_pref("browser.contentblocking.customBlockList.preferences.ui.enabled", true); // DEFAULT
+user_pref("browser.contentblocking.customBlockList.preferences.ui.enabled", false); // DEFAULT
 user_pref("privacy.trackingprotection.socialtracking.enabled", true); // enabled with "Strict"
 user_pref("privacy.socialtracking.block_cookies.enabled", true); // DEFAULT
 user_pref("privacy.trackingprotection.cryptomining.enabled", true); // DEFAULT
@@ -1322,6 +695,21 @@ user_pref("privacy.fingerprintingProtection", true); // [FF114+] [ETP FF119+] en
 user_pref("privacy.fingerprintingProtection.pbmode", true); // DEFAULT
 user_pref("privacy.bounceTrackingProtection.mode", 1); // [FF131+] [ETP FF133+]
 // [1] https://searchfox.org/mozilla-central/source/toolkit/components/antitracking/bouncetrackingprotection/nsIBounceTrackingProtection.idl#11-23
+
+// PREF: disable ETP web compat features (about:compat) [FF93+]
+// [SETUP-HARDEN] Includes skip lists, heuristics (SmartBlock) and automatic grants
+// Opener and redirect heuristics are granted for 30 days, see [3]
+// [1] https://blog.mozilla.org/security/2021/07/13/smartblock-v2/
+// [2] https://hg.mozilla.org/mozilla-central/rev/e5483fd469ab#l4.12
+// [3] https://developer.mozilla.org/docs/Web/Privacy/State_Partitioning#storage_access_heuristics
+user_pref("privacy.antitracking.enableWebcompat", false);
+
+// PREF: set ETP Strict/Custom exception lists (FF141+)
+// [SETTING] Options>Privacy & Security>Enhanced Tracking Protection>Strict/Custom>Fix major [baseline] | minor [convenience]
+// [1] https://support.mozilla.org/en-US/kb/manage-enhanced-tracking-protection-exceptions
+// [2] https://etp-exceptions.mozilla.org/
+user_pref("privacy.trackingprotection.allow_list.baseline.enabled", true); // [DEFAULT: true]
+user_pref("privacy.trackingprotection.allow_list.convenience.enabled", true); // [DEFAULT: true]
 
 // PREF: query stripping
 // Currently uses a small list [1]
@@ -1354,12 +742,12 @@ user_pref("extensions.webcompat.smartblockEmbeds.enabled", true); // [DEFAULT FF
 // [1] https://www.reddit.com/r/firefox/comments/l79nxy/firefox_dev_is_ignoring_social_tracking_preference/gl84ukk
 // [2] https://www.reddit.com/r/firefox/comments/pvds9m/reddit_embeds_not_loading/
 // [3] https://github.com/yokoffing/Betterfox/issues/413
-//user_pref("urlclassifier.trackingSkipURLs", "embed.reddit.com, *.twitter.com, *.twimg.com"); // MANUAL [FF136+]
-//user_pref("urlclassifier.features.socialtracking.skipURLs", "*.twitter.com, *.twimg.com"); // MANUAL [FF136+]
+user_pref("urlclassifier.trackingSkipURLs", "*://embed.reddit.com/*,*://*.twitter.com/*,*://*.twimg.com/*"); // MANUAL
+user_pref("urlclassifier.features.socialtracking.skipURLs", "*://*.twitter.com/*,*://*.twimg.com/*"); // MANUAL
 
 // PREF: allow embedded tweets, Instagram and Reddit posts, and TikTok embeds [before FF136+]
-//user_pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com, *.tiktok.com"); // MANUAL
-//user_pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitter.com, *.twimg.com"); // MANUAL
+user_pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com, *.tiktok.com"); // MANUAL
+user_pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitter.com, *.twimg.com"); // MANUAL
 
 // PREF: lower the priority of network loads for resources on the tracking protection list [NIGHTLY]
 // [1] https://github.com/arkenfox/user.js/issues/102#issuecomment-298413904
@@ -1377,8 +765,8 @@ user_pref("privacy.trackingprotection.lower_network_priority", true);
 // [3] https://hacks.mozilla.org/2021/12/webassembly-and-back-again-fine-grained-sandboxing-in-firefox-95/
 // [4] https://www.reddit.com/r/firefox/comments/r69j52/firefox_content_process_limit_is_gone/
 // [5] https://hg.mozilla.org/mozilla-central/file/tip/dom/ipc/ProcessIsolation.cpp#l53
-//user_pref("fission.autostart", true); // DEFAULT [DO NOT TOUCH]
-//user_pref("fission.webContentIsolationStrategy", 1); // DEFAULT
+user_pref("fission.autostart", true); // DEFAULT [DO NOT TOUCH]
+user_pref("fission.webContentIsolationStrategy", 1); // DEFAULT
 
 // PREF: GPU sandboxing [FF110+] [WINDOWS]
 // [1] https://www.ghacks.net/2023/01/17/firefox-110-will-launch-with-gpu-sandboxing-on-windows/
@@ -1413,7 +801,7 @@ user_pref("browser.contentblocking.reject-and-isolate-cookies.preferences.ui.ena
 // Networking-related APIs are not intended to be used for websites to store data, but they can be abused for
 // cross-site tracking. Network APIs and caches are permanently partitioned by the top-level site.
 // Network Partitioning (isolation) will allow Firefox to associate resources on a per-website basis rather than together
-// in the same pool. This includes cache, favicons, CSS files, images, and even speculative connections. 
+// in the same pool. This includes cache, favicons, CSS files, images, and even speculative connections.
 // [1] https://www.zdnet.com/article/firefox-to-ship-network-partitioning-as-a-new-anti-tracking-defense/
 // [2] https://developer.mozilla.org/en-US/docs/Web/Privacy/State_Partitioning#network_partitioning
 // [3] https://blog.mozilla.org/security/2021/01/26/supercookie-protections/
@@ -1457,7 +845,7 @@ user_pref("network.cookie.sameSite.noneRequiresSecure", true); // [DEFAULT FF131
 user_pref("network.cookie.sameSite.schemeful", true);
 
 // PREF: Hyperlink Auditing (click tracking)
-user_pref("browser.send_pings", false); // DEFAULT
+user_pref("browser.send_pings", reuw); // DEFAULT
 
 // PREF: Beacon API
 // Allows websites to asynchronously transmit small amounts of data to servers
@@ -1470,7 +858,7 @@ user_pref("browser.send_pings", false); // DEFAULT
 // [TEST] https://vercel.com/
 // [1] https://developer.mozilla.org/docs/Web/API/Navigator/sendBeacon
 // [2] https://github.com/arkenfox/user.js/issues/1586
-user_pref("beacon.enabled", false);
+user_pref("beacon.enabled", true);
 
 // PREF: battery status tracking
 // [NOTE] Pref remains, but API is depreciated.
@@ -1480,13 +868,14 @@ user_pref("dom.battery.enabled", false);
 // PREF: remove temp files opened from non-PB windows with an external application
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=302433,1738574
 // [2] https://github.com/arkenfox/user.js/issues/1732
+// [3] https://bugzilla.mozilla.org/302433
 user_pref("browser.download.start_downloads_in_tmp_dir", true); // [FF102+]
-user_pref("browser.helperApps.deleteTempFileOnExit", true);
+user_pref("browser.helperApps.deleteTempFileOnExit", true); // DEFAULT [FF108]
 
 // PREF: disable UITour backend
 // This way, there is no chance that a remote page can use it.
 user_pref("browser.uitour.enabled", false);
-    //user_pref("browser.uitour.url", "");
+user_pref("browser.uitour.url", "");
 
 // PREF: disable remote debugging
 // [1] https://gitlab.torproject.org/tpo/applications/tor-browser/-/issues/16222
@@ -1549,18 +938,18 @@ user_pref("security.OCSP.enabled", 1);
 // [3] https://www.ssl.com/blogs/how-do-browsers-handle-revoked-ssl-tls-certificates/#ftoc-heading-3
 // [4] https://letsencrypt.org/2024/12/05/ending-ocsp/
 user_pref("security.OCSP.require", true);
-      
+
 // PREF: CRLite
 // CRLite covers valid certs, and it doesn't fall back to OCSP in mode 2 [FF84+].
 // CRLite is faster and more private than OCSP [2].
 // 0 = disabled
 // 1 = consult CRLite but only collect telemetry
-// 2 = consult CRLite and enforce both "Revoked" and "Not Revoked" results
-// 3 = consult CRLite and enforce "Not Revoked" results, but defer to OCSP for "Revoked" [FF99+, default FF100+]
+// 2 = consult CRLite and enforce both "Revoked" and "Not Revoked" results (default)
+// 3 = consult CRLite and enforce "Not Revoked" results, but defer to OCSP for "Revoked" (removed FF145)
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=1429800,1670985,1753071
 // [2] https://blog.mozilla.org/security/tag/crlite/
-//user_pref("security.remote_settings.crlite_filters.enabled", true); // [DEFAULT: true FF137+]
-user_pref("security.pki.crlite_mode", 2);
+user_pref("security.remote_settings.crlite_filters.enabled", true); // [DEFAULT: true FF137+]
+user_pref("security.pki.crlite_mode", 2); // [DEFAULT: 2 FF142+]
 
 // PREF: HTTP Public Key Pinning (HPKP)
 // HPKP enhances the security of SSL certificates by associating
@@ -1582,7 +971,7 @@ user_pref("security.pki.crlite_mode", 2);
 user_pref("security.cert_pinning.enforcement_level", 2);
 
 // PREF: do not trust installed third-party root certificates [FF120+]
-// Disable Enterprise Root Certificates of the operating system. 
+// Disable Enterprise Root Certificates of the operating system.
 // For users trying to get intranet sites on managed networks,
 // or who have security software configured to analyze web traffic.
 // [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1848815
@@ -1597,7 +986,7 @@ user_pref("security.certerrors.mitm.auto_enable_enterprise_roots", false);
 // [1] https://github.com/chromium/content_analysis_sdk
 // [2] https://bugzilla.mozilla.org/show_bug.cgi?id=1880314
 user_pref("browser.contentanalysis.enabled", false); // [FF121+] [DEFAULT]
-user_pref("browser.contentanalysis.default_result", 0); // [FF127+] [DEFAULT]
+user_pref("browser.contentanalysis.default_result", 0; // [FF127+] [DEFAULT]
 
 // PREF: disable referrer and storage access for resources injected by content scripts [FF139+]
 user_pref("privacy.antitracking.isolateContentScriptResources", true);
@@ -1680,7 +1069,7 @@ user_pref("privacy.resistFingerprinting.randomization.daily_reset.private.enable
 // PREF: disable showing about:blank as soon as possible during startup [FF60+]
 // [1] https://github.com/arkenfox/user.js/issues/1618
 // [2] https://bugzilla.mozilla.org/1448423
-user_pref("browser.startup.blankWindow", true);
+//user_pref("browser.startup.blankWindow", false);
 
 // PREF: disable ICC color management
 // Use a color calibrator for best results [WINDOWS]
@@ -1707,13 +1096,13 @@ user_pref("browser.privatebrowsing.forceMediaMemoryCache", true);
 // [1] https://kb.mozillazine.org/Browser.sessionstore.interval
 // [2] https://bugzilla.mozilla.org/show_bug.cgi?id=1304389#c64
 // [3] https://bugzilla.mozilla.org/show_bug.cgi?id=1304389#c66
-user_pref("browser.sessionstore.interval", 1800000); // 1 minute; default=15000 (15s); 900000=15 min; 1800000=30 min
+user_pref("browser.sessionstore.interval", 60000); // 1 minute; default=15000 (15s); 900000=15 min; 1800000=30 min
 
 // PREF: store extra session data when crashing or restarting to install updates
 // Dictates whether sites may save extra session data such as form content,
 // scrollbar positions, and POST data.
 // 0=everywhere (default), 1=unencrypted sites, 2=nowhere
-user_pref("browser.sessionstore.privacy_level", 2);
+//user_pref("browser.sessionstore.privacy_level", 2);
 
 // PREF: disable automatic Firefox start and session restore after reboot [WINDOWS]
 // [1] https://bugzilla.mozilla.org/603903
@@ -1724,10 +1113,6 @@ user_pref("browser.sessionstore.privacy_level", 2);
 // [NOTE] .URL shortcut files will be created with a generic icon.
 // Favicons are stored as .ico files in profile_dir\shortcutCache.
 //user_pref("browser.shell.shortcutFavicons", false);
-
-// PREF: remove temp files opened with an external application
-// [1] https://bugzilla.mozilla.org/302433
-//user_pref("browser.helperApps.deleteTempFileOnExit", true); // DEFAULT [FF108]
 
 // PREF: disable page thumbnails capturing
 // Page thumbnails are only used in chrome/privileged contexts.
@@ -1775,6 +1160,14 @@ user_pref("browser.sessionstore.privacy_level", 2);
 
 // PREF: purge session icon in Private Browsing windows
 user_pref("browser.privatebrowsing.resetPBM.enabled", true);
+
+// PREF: delete files downloaded in Private Browsing when all private windows are closed
+// When downloading a file in private browsing mode, the user will be prompted
+// to chose whether they want to keep or delete files that are downloaded
+// while in private browsing.
+//user_pref("browser.download.enableDeletePrivate", true);
+//user_pref("browser.download.deletePrivateChosen", true);
+//user_pref("browser.download.deletePrivate", true);
 
 /******************************************************************************
  * SECTION: SHUTDOWN & SANITIZING                                             *
@@ -1856,20 +1249,20 @@ user_pref("browser.urlbar.untrimOnUserInteraction.featureGate", true);
 
 // PREF: display "Not Secure" text on HTTP sites
 // Needed with HTTPS-First Policy; not needed with HTTPS-Only Mode.
-user_pref("security.insecure_connection_text.enabled", true); // [DEFAULT FF136+]
-user_pref("security.insecure_connection_text.pbmode.enabled", true); // [DEFAULT FF136+]
+//user_pref("security.insecure_connection_text.enabled", true); // [DEFAULT FF136+]
+//user_pref("security.insecure_connection_text.pbmode.enabled", true); // [DEFAULT FF136+]
 
 // PREF: do not show search terms in URL bar [FF110+]
 // Show search query instead of URL on search results pages.
 // [SETTING] Search>Search Bar>Use the address bar for search and navigation>Show search terms instead of URL...
-user_pref("browser.urlbar.showSearchTerms.enabled", false);
-user_pref("browser.urlbar.showSearchTerms.featureGate", false); // DEFAULT
+//user_pref("browser.urlbar.showSearchTerms.enabled", false);
+    //user_pref("browser.urlbar.showSearchTerms.featureGate", false); // DEFAULT
 
 // PREF: enable seperate search engine for Private Windows
 // [SETTINGS] Preferences>Search>Default Search Engine>"Use this search engine in Private Windows"
 user_pref("browser.search.separatePrivateDefault.ui.enabled", true);
 // [SETTINGS] "Choose a different default search engine for Private Windows only"
-user_pref("browser.search.separatePrivateDefault", true); // DEFAULT
+    //user_pref("browser.search.separatePrivateDefault", true); // DEFAULT
 
 // PREF: enable option to add custom search engine
 // Before FF140, this pref was hidden.
@@ -1878,27 +1271,27 @@ user_pref("browser.search.separatePrivateDefault", true); // DEFAULT
 // [EXAMPLE] https://lite.duckduckgo.com/lite/?q=%s
 // [1] https://reddit.com/r/firefox/comments/xkzswb/adding_firefox_search_engine_manually/
 // [2] https://www.mozilla.org/en-US/firefox/140.0/releasenotes/
-//user_pref("browser.urlbar.update2.engineAliasRefresh", true); // [DEFAULT FF140+]
+user_pref("browser.urlbar.update2.engineAliasRefresh", true); // [DEFAULT FF140+]
 
 // PREF: disable live search suggestions (Google, Bing, etc.)
 // [WARNING] Search engines keylog every character you type from the URL bar.
 // Override these if you trust and use a privacy respecting search engine.
 // [NOTE] Both prefs must be true for live search to work in the location bar.
 // [SETTING] Search>Provide search suggestions > Show search suggestions in address bar result
-user_pref("browser.search.suggest.enabled", false);
+user_pref("browser.search.suggest.enabled", true);
 user_pref("browser.search.suggest.enabled.private", false); // DEFAULT
 
 // PREF: disable Show recent searches
-// [SETTING] Search > Search Suggestions > Show recent searches 
-user_pref("browser.urlbar.suggest.recentsearches", false);
+// [SETTING] Search > Search Suggestions > Show recent searches
+user_pref("browser.urlbar.suggest.recentsearches", true);
 
 // PREF: disable Firefox Suggest
 // [1] https://github.com/arkenfox/user.js/issues/1257
-user_pref("browser.urlbar.quicksuggest.enabled", false); // controls whether the UI is shown
-user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false); // [FF92+] 
-user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false); // [FF95+]
+user_pref("browser.urlbar.quicksuggest.enabled", true); // controls whether the UI is shown
+user_pref("browser.urlbar.suggest.quicksuggest.sponsored", true); // [FF92+]
+user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", true); // [FF95+]
 // hide Firefox Suggest label in URL dropdown box
-user_pref("browser.urlbar.groupLabels.enabled", false);
+user_pref("browser.urlbar.groupLabels.enabled", true);
 
 // PREF: disable search and form history
 // Be aware that autocomplete form data can be read by third parties [1][2].
@@ -1915,11 +1308,11 @@ user_pref("browser.formfill.enable", false);
 // as the 411 for DNS errors?), privacy issues (why connect to sites you didn't
 // intend to), can leak sensitive data (e.g. query strings: e.g. Princeton attack),
 // and is a security risk (e.g. common typos & malicious sites set up to exploit this).
-user_pref("browser.fixup.alternate.enabled", false); // [DEFAULT FF104+]
+user_pref("browser.fixup.alternate.enabled", true); // [DEFAULT FF104+]
 
 // PREF: disable location bar autofill
 // https://support.mozilla.org/en-US/kb/address-bar-autocomplete-firefox#w_url-autocomplete
-user_pref("browser.urlbar.autoFill", false);
+user_pref("browser.urlbar.autoFill", true);
 
 // PREF: enforce Punycode for Internationalized Domain Names to eliminate possible spoofing
 // Firefox has some protections, but it is better to be safe than sorry.
@@ -1935,16 +1328,14 @@ user_pref("network.IDN_show_punycode", true);
 /******************************************************************************
  * SECTION: HTTPS-FIRST POLICY                          *
 ******************************************************************************/
-
 // PREF: HTTPS-First Policy
 // Firefox attempts to make all connections to websites secure,
 // and falls back to insecure connections only when a website
 // does not support it. Unlike HTTPS-Only Mode, Firefox
 // will NOT ask for your permission before connecting to a website
 // that doesn’t support secure connections.
-// As of August 2023, Google estimates that 5-10% of traffic
-// has remained on HTTP, allowing attackers to eavesdrop
-// on or change that data [6].
+// As of October 2025, Google estimates that 3-5% of traffic
+// is insecure, allowing attackers to eavesdrop on or change that data [8].
 // [NOTE] HTTPS-Only Mode needs to be disabled for HTTPS First to work.
 // [TEST] http://example.com [upgrade]
 // [TEST] http://httpforever.com/ [no upgrade]
@@ -1955,9 +1346,20 @@ user_pref("network.IDN_show_punycode", true);
 // [5] https://www.cloudflare.com/learning/ssl/why-use-https/
 // [6] https://blog.chromium.org/2023/08/towards-https-by-default.html
 // [7] https://attackanddefense.dev/2025/03/31/https-first-in-firefox-136.html
-user_pref("dom.security.https_first", true); // [DEFAULT FF136+]
-user_pref("dom.security.https_first_pbm", true); // [DEFAULT FF91+]
-user_pref("dom.security.https_first_schemeless", true); // [FF120+] [DEFAULT FF129+]
+// [8] https://security.googleblog.com/2025/10/https-by-default.html
+//user_pref("dom.security.https_first", true); // [DEFAULT FF136+]
+//user_pref("dom.security.https_first_pbm", true); // [DEFAULT FF91+]
+//user_pref("dom.security.https_first_schemeless", true); // [FF120+] [DEFAULT FF129+]
+
+// PREF: block insecure passive content (images) on HTTPS pages
+// [WARNING] This preference blocks all mixed content, including upgradable.
+// Firefox still attempts an HTTP connection if it can't find a secure one,
+// even with HTTPS First Policy. Although rare, this leaves a small risk of
+// a malicious image being served through a MITM attack.
+// Disable this pref if using HTTPS-Only Mode.
+// [NOTE] Enterprise users may need to enable this setting [1].
+// [1] https://blog.mozilla.org/security/2024/06/05/firefox-will-upgrade-more-mixed-content-in-version-127/
+//user_pref("security.mixed_content.block_display_content", true); // Defense-in-depth (see HTTPS-Only mode)
 
 /******************************************************************************
  * SECTION: HTTPS-ONLY MODE                              *
@@ -1967,9 +1369,8 @@ user_pref("dom.security.https_first_schemeless", true); // [FF120+] [DEFAULT FF1
 // by a server. Options to use HTTP are then provided.
 // [NOTE] When "https_only_mode" (all windows) is true,
 // "https_only_mode_pbm" (private windows only) is ignored.
-// As of August 2023, Google estimates that 5-10% of traffic
-// has remained on HTTP, allowing attackers to eavesdrop
-// on or change that data [5].
+// As of October 2025, Google estimates that 3-5% of traffic
+// is insecure, allowing attackers to eavesdrop on or change that data [6].
 // [SETTING] to add site exceptions: Padlock>HTTPS-Only mode>On/Off/Off temporarily
 // [SETTING] Privacy & Security>HTTPS-Only Mode
 // [TEST] http://example.com [upgrade]
@@ -1979,17 +1380,23 @@ user_pref("dom.security.https_first_schemeless", true); // [FF120+] [DEFAULT FF1
 // [3] https://web.dev/why-https-matters/
 // [4] https://www.cloudflare.com/learning/ssl/why-use-https/
 // [5] https://blog.chromium.org/2023/08/towards-https-by-default.html
+// [6] https://security.googleblog.com/2025/10/https-by-default.html
 
-// PREF: enable HTTPS-only Mode
-user_pref("dom.security.https_only_mode_pbm", true); // Private Browsing windows only
-user_pref("dom.security.https_only_mode", true); // Normal + Private Browsing windows
+// PREF: enable HTTPS-Only mode in all windows
+// When the top-level is HTTPS, insecure subresources are also upgraded (silent fail)
+// [SETTING] to add site exceptions: Padlock>HTTPS-Only mode>On (after "Continue to HTTP Site")
+// [SETTING] Privacy & Security>HTTPS-Only Mode (and manage exceptions)
+// [TEST] http://example.com [upgrade]
+// [TEST] http://httpforever.com/ | http://http.rip [no upgrade]
+user_pref("dom.security.https_only_mode", true); // [FF76+]
+user_pref("dom.security.https_only_mode_pbm", true); // [FF80+] Private Browsing windows only
 
 // PREF: offer suggestion for HTTPS site when available
 // [1] https://x.com/leli_gibts_scho/status/1371463866606059528
 user_pref("dom.security.https_only_mode_error_page_user_suggestions", true);
 
 // PREF: HTTP background requests in HTTPS-only Mode
-// When attempting to upgrade, if the server doesn't respond within 3 seconds[=default time],
+// When attempting to upgrade, if the server doesn't respond within a few seconds,
 // Firefox sends HTTP requests in order to check if the server supports HTTPS or not.
 // This is done to avoid waiting for a timeout which takes 90 seconds.
 // Firefox only sends top level domain when falling back to http.
@@ -1998,10 +1405,6 @@ user_pref("dom.security.https_only_mode_error_page_user_suggestions", true);
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=1642387,1660945
 // [2] https://blog.mozilla.org/attack-and-defense/2021/03/10/insights-into-https-only-mode/
 user_pref("dom.security.https_only_mode_send_http_background_request", true); // DEFAULT
-user_pref("dom.security.https_only_fire_http_request_background_timer_ms", 3000); // DEFAULT
-
-// PREF: disable HTTPS-Only mode for local resources
-//user_pref("dom.security.https_only_mode.upgrade_local", false); // DEFAULT
 
 /******************************************************************************
  * SECTION: DNS-over-HTTPS                                                    *
@@ -2026,13 +1429,13 @@ user_pref("network.trr.max-fails", 5); // default=15
 
 // PREF: display fallback warning page [FF115+]
 // Show a warning checkbox UI in modes 0 or 2 above.
-//user_pref("network.trr_ui.show_fallback_warning_option", false); // DEFAULT
-//user_pref("network.trr.display_fallback_warning", false); // DEFAULT
+user_pref("network.trr_ui.show_fallback_warning_option", false); // DEFAULT
+user_pref("network.trr.display_fallback_warning", false); // DEFAULT
 
 // PREF: DoH resolver
 // [1] https://github.com/uBlockOrigin/uBlock-issues/issues/1710
-user_pref("network.trr.uri", "https://cloudflare-dns.com/dns-query");
-user_pref("network.trr.custom_uri", "https://cloudflare-dns.com/dns-query");
+user_pref("network.trr.uri", "https://mozilla.cloudflare-dns.com/dns-query");
+user_pref("network.trr.custom_uri", "https://mozilla.cloudflare-dns.com/dns-query");
 
 // PREF: set DoH bootstrap address [FF89+]
 // Firefox uses the system DNS to initially resolve the IP address of your DoH server.
@@ -2041,7 +1444,7 @@ user_pref("network.trr.custom_uri", "https://cloudflare-dns.com/dns-query");
 //user_pref("network.trr.bootstrapAddr", "10.0.0.1"); // [HIDDEN PREF]
 
 // PREF: adjust providers
-user_pref("network.trr.resolvers", '[{ "name": "Cloudflare", "url": "https://cloudflare-dns.com/dns-query" }]');
+user_pref("network.trr.resolvers", '[{ "name": "Cloudflare", "url": "https://mozilla.cloudflare-dns.com/dns-query" }]');
 
 // PREF: EDNS Client Subnet (ECS)
 // [WARNING] In some circumstances, enabling ECS may result
@@ -2051,13 +1454,13 @@ user_pref("network.trr.resolvers", '[{ "name": "Cloudflare", "url": "https://clo
 // [1] https://en.wikipedia.org/wiki/EDNS_Client_Subnet
 // [2] https://www.quad9.net/support/faq/#edns
 // [3] https://datatracker.ietf.org/doc/html/rfc7871
-user_pref("network.trr.disable-ECS", true); // DEFAULT
+//user_pref("network.trr.disable-ECS", true); // DEFAULT
 
 // PREF: DNS Rebind Protection
 // false=do not allow RFC 1918 private addresses in TRR responses (default)
 // true=allow RFC 1918 private addresses in TRR responses
 // [1] https://docs.controld.com/docs/dns-rebind-option
-user_pref("network.trr.allow-rfc1918", false); // DEFAULT
+user_pref("network.trr.allow-rfc1918", true); // DEFAULT
 
 // PREF: assorted options
 //user_pref("network.trr.confirmationNS", "skip"); // skip undesired DOH test connection
@@ -2108,12 +1511,12 @@ user_pref("network.dns.echconfig.fallback_to_origin_when_all_failed", false); //
 // as a remote Tor node will handle the DNS request.
 // [1] https://trac.torproject.org/projects/tor/wiki/doc/TorifyHOWTO/WebBrowsers
 // [SETTING] Settings>Network Settings>Proxy DNS when using SOCKS v5
-//user_pref("network.proxy.socks_remote_dns", true);
+user_pref("network.proxy.socks_remote_dns", true);
 
 // PREF: disable using UNC (Uniform Naming Convention) paths [FF61+]
 // [SETUP-CHROME] Can break extensions for profiles on network shares.
 // [1] https://gitlab.torproject.org/tpo/applications/tor-browser/-/issues/26424
-//user_pref("network.file.disable_unc_paths", true); // [HIDDEN PREF]
+user_pref("network.file.disable_unc_paths", false); // [HIDDEN PREF]
 
 // PREF: disable GIO as a potential proxy bypass vector
 // Gvfs/GIO has a set of supported protocols like obex, network,
@@ -2122,10 +1525,10 @@ user_pref("network.dns.echconfig.fallback_to_origin_when_all_failed", false); //
 // [1] https://bugzilla.mozilla.org/1433507
 // [2] https://en.wikipedia.org/wiki/GVfs
 // [3] https://en.wikipedia.org/wiki/GIO_(software)
-//user_pref("network.gio.supported-protocols", ""); // [HIDDEN PREF] [DEFAULT FF118+]
+user_pref("network.gio.supported-protocols", ""); // [HIDDEN PREF] [DEFAULT FF118+]
 
 // PREF: disable check for proxies
-//user_pref("network.notify.checkForProxies", false);
+user_pref("network.notify.checkForProxies", true);
 
 /******************************************************************************
  * SECTION: PASSWORDS                                                        *
@@ -2167,7 +1570,7 @@ user_pref("signon.generation.enabled", false);
 // [NOTE] No usernames or passwords are sent to third-party sites.
 // [1] https://lockwise.firefox.com/
 // [2] https://support.mozilla.org/en-US/kb/firefox-lockwise-managing-account-data
-user_pref("signon.management.page.breach-alerts.enabled", false); 
+user_pref("signon.management.page.breach-alerts.enabled", false);
 user_pref("signon.management.page.breachAlertUrl", "");
 user_pref("browser.contentblocking.report.lockwise.enabled", false);
 user_pref("browser.contentblocking.report.lockwise.how_it_works.url", "");
@@ -2187,16 +1590,20 @@ user_pref("signon.storeWhenAutocompleteOff", false);
 // 1=don't allow cross-origin sub-resources to open HTTP authentication credentials dialogs
 // 2=allow sub-resources to open HTTP authentication credentials dialogs (default)
 // [1] https://web.archive.org/web/20181123134351/https://www.fxsitecompat.com/en-CA/docs/2015/http-auth-dialog-can-no-longer-be-triggered-by-cross-origin-resources/
-user_pref("network.auth.subresource-http-auth-allow", 1);
+user_pref("network.auth.subresource-http-auth-allow", 0);
 
 // PREF: prevent password truncation when submitting form data
 // [1] https://www.ghacks.net/2020/05/18/firefox-77-wont-truncate-text-exceeding-max-length-to-address-password-pasting-issues/
 user_pref("editor.truncate_user_pastes", false);
 
 // PREF: reveal password icon
-//user_pref("layout.forms.reveal-password-context-menu.enabled", true); // right-click menu option; DEFAULT [FF112]
+user_pref("layout.forms.reveal-password-context-menu.enabled", false); // right-click menu option; DEFAULT [FF112]
 // [DO NOT TOUCH] Icons will double-up if the website implements it natively.
-//user_pref("layout.forms.reveal-password-button.enabled", true); // always show icon in password fields
+user_pref("layout.forms.reveal-password-button.enabled", false); // always show icon in password fields
+
+// PREF: disable automatic authentication on Microsoft sites [WINDOWS]
+// [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=1695693,1719301
+user_pref("network.http.windows-sso.enabled", false);
 
 /****************************************************************************
  * SECTION: ADDRESS + CREDIT CARD MANAGER                                   *
@@ -2209,32 +1616,6 @@ user_pref("editor.truncate_user_pastes", false);
 user_pref("extensions.formautofill.addresses.enabled", false);
 user_pref("extensions.formautofill.creditCards.enabled", false);
 
-/******************************************************************************
- * SECTION: MIXED CONTENT + CROSS-SITE                                       *
-******************************************************************************/
-
-// PREF: block insecure passive content (images) on HTTPS pages
-// [WARNING] This preference blocks all mixed content, including upgradable.
-// Firefox still attempts an HTTP connection if it can't find a secure one,
-// even with HTTPS First Policy. Although rare, this leaves a small risk of
-// a malicious image being served through a MITM attack.
-// Disable this pref if using HTTPS-Only Mode.
-// [NOTE] Enterprise users may need to enable this setting [1].
-// [1] https://blog.mozilla.org/security/2024/06/05/firefox-will-upgrade-more-mixed-content-in-version-127/
-user_pref("security.mixed_content.block_display_content", true);
-
-// PREF: allow PDFs to load javascript
-// https://www.reddit.com/r/uBlockOrigin/comments/mulc86/firefox_88_now_supports_javascript_in_pdf_files/
-user_pref("pdfjs.enableScripting", false);
-
-// PREF: disable middle click on new tab button opening URLs or searches using clipboard [FF115+]
-// Enable if you're using LINUX.
-user_pref("browser.tabs.searchclipboardfor.middleclick", true); // DEFAULT WINDOWS macOS
-
-// PREF: disable automatic authentication on Microsoft sites [WINDOWS]
-// [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=1695693,1719301
-user_pref("network.http.windows-sso.enabled", false);
-
 /****************************************************************************
  * SECTION: EXTENSIONS                                                      *
 ****************************************************************************/
@@ -2245,7 +1626,7 @@ user_pref("network.http.windows-sso.enabled", false);
 // [WARNING] Breaks usage of files which are installed outside allowed directories.
 // [1] https://archive.is/DYjAM
 user_pref("extensions.enabledScopes", 5); // [HIDDEN PREF]
-    //user_pref("extensions.autoDisableScopes", 15); // [DEFAULT: 15]
+user_pref("extensions.autoDisableScopes", 15); // [DEFAULT: 15]
 
 // PREF: skip 3rd party panel when installing recommended addons [FF82+]
 // [1] https://bugzilla.mozilla.org/buglist.cgi?bug_id=1659530,1681331
@@ -2263,7 +1644,7 @@ user_pref("extensions.enabledScopes", 5); // [HIDDEN PREF]
 
 // PREF: do not require signing for extensions [ESR/DEV/NIGHTLY ONLY]
 // [1] https://support.mozilla.org/en-US/kb/add-on-signing-in-firefox#w_what-are-my-options-if-i-want-to-use-an-unsigned-add-on-advanced-users
-//user_pref("xpinstall.signatures.required", false);
+user_pref("xpinstall.signatures.required", true);
 
 // PREF: disable Quarantined Domains [FF115+]
 // Users may see a notification when running add-ons that are not monitored by Mozilla when they visit certain sites.
@@ -2271,7 +1652,7 @@ user_pref("extensions.enabledScopes", 5); // [HIDDEN PREF]
 // There's no details as to which sites are affected.
 // [1] https://support.mozilla.org/kb/quarantined-domains
 // [2] https://www.ghacks.net/2023/07/04/firefox-115-new-esr-base-and-some-add-ons-may-be-blocked-from-running-on-certain-sites/
-//user_pref("extensions.quarantinedDomains.enabled", true); // [DEFAULT: true]
+user_pref("extensions.quarantinedDomains.enabled", true); // [DEFAULT: true]
 
 /******************************************************************************
  * SECTION: HEADERS / REFERERS                                               *
@@ -2291,8 +1672,8 @@ user_pref("network.http.referer.defaultPolicy.pbmode", 2); // DEFAULT
 // 0=no-referrer, 1=same-origin, 2=strict-origin-when-cross-origin (default),
 // 3=no-referrer-when-downgrade
 // [1] https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy#examples
-user_pref("network.http.referer.defaultPolicy.trackers", 1);
-user_pref("network.http.referer.defaultPolicy.trackers.pbmode", 1);
+user_pref("network.http.referer.defaultPolicy.trackers", 2);
+user_pref("network.http.referer.defaultPolicy.trackers.pbmode", 2);
 
 // PREF: HTTP Referrer Header
 // [NOTE] Only cross-origin referers need control.
@@ -2325,7 +1706,7 @@ user_pref("network.http.referer.XOriginPolicy", 0); // DEFAULT
 // [1] https://blog.mozilla.org/security/2021/03/22/firefox-87-trims-http-referrers-by-default-to-protect-user-privacy/
 // [2] https://web.dev/referrer-best-practices/
 // [3] https://www.reddit.com/r/waterfox/comments/16px8yq/comment/k29r6bu/?context=3
-user_pref("network.http.referer.XOriginTrimmingPolicy", 2);
+user_pref("network.http.referer.XOriginTrimmingPolicy", 0);
 
 /******************************************************************************
  * SECTION: CONTAINERS                                                       *
@@ -2338,20 +1719,20 @@ user_pref("network.http.referer.XOriginTrimmingPolicy", 2);
 // [SETTING] General>Tabs>Enable Container Tabs
 // [1] https://wiki.mozilla.org/Security/Contextual_Identity_Project/Containers
 // [2] https://addons.mozilla.org/en-US/firefox/addon/multi-account-containers/
-user_pref("privacy.userContext.ui.enabled", true);
-user_pref("privacy.userContext.enabled", true);
+user_pref("privacy.userContext.ui.enabled", false);
+user_pref("privacy.userContext.enabled", false);
 
 // PREF: set behavior on "+ Tab" button to display container menu on left click [FF74+]
 // [NOTE] The menu is always shown on long press and right click.
 // [SETTING] General>Tabs>Enable Container Tabs>Settings>Select a container for each new tab
-user_pref("privacy.userContext.newTabContainerOnLeftClick.enabled", true);
+user_pref("privacy.userContext.newTabContainerOnLeftClick.enabled", false);
 
 // PREF: set external links to open in site-specific containers [FF123+]
 // Depending on your container extension(s) and their settings:
 // true=Firefox will not choose a container (so your extension can)
 // false=Firefox will choose the container/no-container (default)
 // [1] https://bugzilla.mozilla.org/1874599
-    //user_pref("browser.link.force_default_user_context_id_for_external_opens", true);
+user_pref("browser.link.force_default_user_context_id_for_external_opens", false);
 
 /******************************************************************************
  * SECTION: WEBRTC                                                           *
@@ -2363,7 +1744,7 @@ user_pref("privacy.userContext.newTabContainerOnLeftClick.enabled", true);
 // [TEST] https://browserleaks.com/webrtc
 // [1] https://groups.google.com/g/discuss-webrtc/c/6stQXi72BEU/m/2FwZd24UAQAJ
 // [2] https://datatracker.ietf.org/doc/html/draft-ietf-mmusic-mdns-ice-candidates#section-3.1.1
-user_pref("media.peerconnection.enabled", false);
+user_pref("media.peerconnection.enabled", true);
 
 // PREF: enable WebRTC Global Mute Toggles [NIGHTLY]
 user_pref("privacy.webrtc.globalMuteToggles", true);
@@ -2406,33 +1787,23 @@ user_pref("media.gmp-widevinecdm.enabled", true);
 // [1] https://www.eff.org/deeplinks/2017/10/drms-dead-canary-how-we-just-lost-web-what-we-learned-it-and-what-we-need-do-next
 // [2] https://www.reddit.com/r/firefox/comments/10gvplf/comment/j55htc7
 user_pref("media.eme.enabled", true);
-// Optionally, hide the setting which also disables the DRM prompt:
+    // Optionally, hide the setting which also disables the DRM prompt:
 user_pref("browser.eme.ui.enabled", true);
 
 /******************************************************************************
- * SECTION: VARIOUS                                                          *
+ * SECTION: JIT                                                              *
 ******************************************************************************/
+// PREF: Just-In-Time Compilation
+// Around half of zero-day exploits are directly related to "just in time"
+// (JIT) compilers, and disabling that can greatly improve your protection against
+// these potential exploits.
+// [1] https://microsoftedge.github.io/edgevr/posts/Super-Duper-Secure-Mode/
+// [2] https://www.youtube.com/watch?v=i7qlZeDt9o4
 
-// PREF: decode URLs in other languages
-// [WARNING] Causes unintended consequences when copy+paste links with underscores.
-// [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1320061
-//user_pref("browser.urlbar.decodeURLsOnCopy", false); // DEFAULT
-
-// PREF: number of usages of the web console
-// If this is less than 5, then pasting code into the web console is disabled.
-//user_pref("devtools.selfxss.count", 5);
-
-// PREF: disable asm.js [FF22+]
-// [WARNING] Disabling this pref may disrupt your browsing experience.
-// [1] http://asmjs.org/
-// [2] https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=asm.js
-// [3] https://rh0dev.github.io/blog/2017/the-return-of-the-jit/
-//user_pref("javascript.options.asmjs", false);
-
+// PREF: JavaScript JIT
 // PREF: disable Ion and baseline JIT to harden against JS exploits
 // [NOTE] When both Ion and JIT are disabled, and trustedprincipals
 // is enabled, then Ion can still be used by extensions [4].
-// [WARNING] Disabling these prefs will disrupt your browsing experience [6].
 // Tor Browser doesn't even ship with these disabled by default.
 // [1] https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=firefox+jit
 // [2] https://microsoftedge.github.io/edgevr/posts/Super-Duper-Secure-Mode/
@@ -2440,12 +1811,11 @@ user_pref("browser.eme.ui.enabled", true);
 // [4] https://bugzilla.mozilla.org/show_bug.cgi?id=1599226
 // [5] https://wiki.mozilla.org/IonMonkey
 // [6] https://github.com/arkenfox/user.js/issues/1791#issuecomment-1891273681
-user_pref("javascript.options.ion", true);
 user_pref("javascript.options.baselinejit", true);
-user_pref("javascript.options.jit_trustedprincipals", true); // [FF75+] [HIDDEN PREF]
+user_pref("javascript.options.ion", true);
+user_pref("javascript.options.jit_trustedprincipals", true);
 
-// PREF: disable WebAssembly [FF52+]
-// [WARNING] Disabling this pref may disrupt your browsing experience.
+// PREF: WebAssembly JIT [FF52+]
 // Vulnerabilities [1] have increasingly been found, including those known and fixed
 // in native programs years ago [2]. WASM has powerful low-level access, making
 // certain attacks (brute-force) and vulnerabilities more possible.
@@ -2454,8 +1824,54 @@ user_pref("javascript.options.jit_trustedprincipals", true); // [FF75+] [HIDDEN 
 // [2] https://spectrum.ieee.org/tech-talk/telecom/security/more-worries-over-the-security-of-web-assembly
 // [3] https://www.zdnet.com/article/half-of-the-websites-using-webassembly-use-it-for-malicious-purposes
 user_pref("javascript.options.wasm", true);
+user_pref("javascript.options.wasm_trustedprincipals", true);
+user_pref("javascript.options.wasm_baselinejit", true);
+user_pref("javascript.options.wasm_optimizingjit", true);
+
+// PREF: Asm.js JIT [FF22+]
+// [1] http://asmjs.org/
+// [2] https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=asm.js
+// [3] https://rh0dev.github.io/blog/2017/the-return-of-the-jit/
+user_pref("javascript.options.asmjs", true);
+
+// PREF: Blinterp (JIT-like)
+user_pref("javascript.options.blinterp", true);
 
 /******************************************************************************
+ * SECTION: VARIOUS                                                          *
+******************************************************************************/
+
+// PREF: decode URLs in other languages
+// [WARNING] Causes unintended consequences when copy+paste links with underscores.
+// [1] https://bugzilla.mozilla.org/show_bug.cgi?id=1320061
+user_pref("browser.urlbar.decodeURLsOnCopy", true); // DEFAULT
+
+// PREF: number of usages of the web console
+// If this is less than 5, then pasting code into the web console is disabled.
+user_pref("devtools.selfxss.count", 5);
+
+// PREF: disable middle click on new tab button opening URLs or searches using clipboard [FF115+]
+// Enable if you're using LINUX.
+user_pref("browser.tabs.searchclipboardfor.middleclick", true); // DEFAULT WINDOWS macOS
+
+// PREF: do not allow PDFs to load javascript
+// [1] https://www.reddit.com/r/uBlockOrigin/comments/mulc86/firefox_88_now_supports_javascript_in_pdf_files/
+
+// PREF: enforce PDFJS, disable PDFJS scripting
+// This setting controls if the option "Display in Firefox" is available in the setting below
+// and by effect controls whether PDFs are handled in-browser or externally ("Ask" or "Open With").
+// [WHY] pdfjs is lightweight, open source, and secure: the last exploit was June 2015 [1].
+// It doesn't break "state separation" of browser content (by not sharing with OS, independent apps).
+// It maintains disk avoidance and application data isolation. It's convenient. You can still save to disk.
+// [NOTE] JS can still force a pdf to open in-browser by bundling its own code.
+// [SETUP-CHROME] You may prefer a different pdf reader for security/workflow reasons.
+// [SETTING] General>Applications>Portable Document Format (PDF)
+// [1] https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=pdf.js+firefox
+// [2] https://www.reddit.com/r/uBlockOrigin/comments/mulc86/firefox_88_now_supports_javascript_in_pdf_files/
+user_pref("pdfjs.disabled", true); // [DEFAULT: false]
+user_pref("pdfjs.enableScripting", false); // [FF86+]
+
+ /******************************************************************************
  * SECTION: SAFE BROWSING (SB)                                               *
 ******************************************************************************/
 
@@ -2484,31 +1900,26 @@ user_pref("javascript.options.wasm", true);
 // [8] https://blog.cryptographyengineering.com/2019/10/13/dear-apple-safe-browsing-might-not-be-that-safe/ (outdated)
 // [9] https://the8-bit.com/apple-proxies-google-safe-browsing-privacy/
 // [10] https://github.com/brave/brave-browser/wiki/Deviations-from-Chromium-(features-we-disable-or-remove)#services-we-proxy-through-brave-servers
-//user_pref("browser.safebrowsing.malware.enabled", false); // all checks happen locally
-//user_pref("browser.safebrowsing.phishing.enabled", false); // all checks happen locally
-//user_pref("browser.safebrowsing.blockedURIs.enabled", false); // all checks happen locally
-    //user_pref("browser.safebrowsing.provider.google4.gethashURL", "");
-    //user_pref("browser.safebrowsing.provider.google4.updateURL", "");
-    //user_pref("browser.safebrowsing.provider.google.gethashURL", "");
-    //user_pref("browser.safebrowsing.provider.google.updateURL", "");
+user_pref("browser.safebrowsing.malware.enabled", true); // all checks happen remotely
+user_pref("browser.safebrowsing.phishing.enabled", true); // all checks happen remotely
+user_pref("browser.safebrowsing.blockedURIs.enabled", true); // all checks happen remotely
 
 // PREF: disable SB checks for downloads
 // This is the master switch for the safebrowsing.downloads prefs (both local lookups + remote).
 // [NOTE] Still enable this for checks to happen locally.
 // [SETTING] Privacy & Security>Security>... "Block dangerous downloads"
-//user_pref("browser.safebrowsing.downloads.enabled", false); // all checks happen locally
-      
+user_pref("browser.safebrowsing.downloads.enabled", true); // all checks happen locally
+
 // PREF: disable SB checks for downloads (remote)
 // To verify the safety of certain executable files, Firefox may submit some information about the
 // file, including the name, origin, size and a cryptographic hash of the contents, to the Google
 // Safe Browsing service which helps Firefox determine whether or not the file should be blocked.
 // [NOTE] If you do not understand the consequences, override this.
-user_pref("browser.safebrowsing.downloads.remote.enabled", false);
-      //user_pref("browser.safebrowsing.downloads.remote.url", "");
+user_pref("browser.safebrowsing.downloads.remote.enabled", true);
 // disable SB checks for unwanted software
 // [SETTING] Privacy & Security>Security>... "Warn you about unwanted and uncommon software"
-        //user_pref("browser.safebrowsing.downloads.remote.block_potentially_unwanted", false);
-        //user_pref("browser.safebrowsing.downloads.remote.block_uncommon", false);
+user_pref("browser.safebrowsing.downloads.remote.block_potentially_unwanted", true);
+user_pref("browser.safebrowsing.downloads.remote.block_uncommon", true);
 
 // PREF: allow user to "ignore this warning" on SB warnings
 // If clicked, it bypasses the block for that session. This is a means for admins to enforce SB.
@@ -2516,7 +1927,7 @@ user_pref("browser.safebrowsing.downloads.remote.enabled", false);
 // [TEST] see https://github.com/arkenfox/user.js/wiki/Appendix-A-Test-Sites#-mozilla
 // [1] https://bugzilla.mozilla.org/1226490
 // [2] https://safebrowsing.google.com/safebrowsing/report_general/
-//user_pref("browser.safebrowsing.allowOverride", true); // DEFAULT
+user_pref("browser.safebrowsing.allowOverride", true); // DEFAULT
 
 /******************************************************************************
  * SECTION: MOZILLA                                                   *
@@ -2533,12 +1944,11 @@ user_pref("browser.safebrowsing.downloads.remote.enabled", false);
 user_pref("accessibility.force_disabled", 1);
 user_pref("devtools.accessibility.enabled", false);
 
-// PREF: disable Firefox Sync
+// PREF: enable Firefox Sync
 // [ALTERNATIVE] Use xBrowserSync [1]
 // [1] https://addons.mozilla.org/en-US/firefox/addon/xbs
 // [2] https://github.com/arkenfox/user.js/issues/1175
-//user_pref("identity.fxaccounts.enabled", false);
-    //user_pref("identity.fxaccounts.autoconfig.uri", "");
+user_pref("identity.fxaccounts.enabled", true);
 
 // PREF: disable Firefox View [FF106+]
 // You can no longer disable Firefox View as of [FF127+].
@@ -2547,7 +1957,7 @@ user_pref("devtools.accessibility.enabled", false);
 // [2] https://support.mozilla.org/en-US/kb/how-set-tab-pickup-firefox-view#w_how-do-i-remove-firefox-view-from-the-tabs-bar
 
 // PREF: disable the Firefox View tour from popping up
-//user_pref("browser.firefox-view.feature-tour", "{\"screen\":\"\",\"complete\":true}");
+user_pref("browser.firefox-view.feature-tour", "{\"screen\":\"\",\"complete\":true}");
 
 // PREF: disable Push Notifications API [FF44+]
 // [WHY] Website "push" requires subscription, and the API is required for CRLite.
@@ -2558,8 +1968,7 @@ user_pref("devtools.accessibility.enabled", false);
 // [1] https://support.mozilla.org/en-US/kb/push-notifications-firefox
 // [2] https://developer.mozilla.org/en-US/docs/Web/API/Push_API
 // [3] https://www.reddit.com/r/firefox/comments/fbyzd4/the_most_private_browser_isnot_firefox/
-// user_pref("dom.push.enabled", false);
-    //user_pref("dom.push.userAgentID", "");
+user_pref("dom.push.enabled", true);
 
 // PREF: default permission for Web Notifications
 // To add site exceptions: Page Info>Permissions>Receive Notifications
@@ -2568,7 +1977,7 @@ user_pref("devtools.accessibility.enabled", false);
 // [1] https://easylinuxtipsproject.blogspot.com/p/security.html#ID5
 // [2] https://github.com/yokoffing/Betterfox/wiki/Common-Overrides#site-notifications
 user_pref("permissions.default.desktop-notification", 2);
-   
+
 // PREF: default permission for Location Requests
 // 0=always ask (default), 1=allow, 2=block
 user_pref("permissions.default.geo", 2);
@@ -2587,26 +1996,26 @@ user_pref("geo.provider.use_corelocation", false); // [MAC]
 user_pref("geo.provider.use_geoclue", false); // [FF102+] [LINUX]
 
 // PREF: logging geolocation to the console
-//user_pref("geo.provider.network.logging.enabled", true);
+user_pref("geo.provider.network.logging.enabled", true);
 
 // PREF: disable region updates
 // [1] https://firefox-source-docs.mozilla.org/toolkit/modules/toolkit_modules/Region.html
-//user_pref("browser.region.update.enabled", false);
-    //user_pref("browser.region.network.url", "");
+user_pref("browser.region.update.enabled", false);
+user_pref("browser.region.network.url", "");
 
 // PREF: enforce Firefox blocklist for extensions + no hiding tabs
 // This includes updates for "revoked certificates".
 // [1] https://blog.mozilla.org/security/2015/03/03/revoking-intermediate-certificates-introducing-onecrl/
 // [2] https://trac.torproject.org/projects/tor/ticket/16931
-//user_pref("extensions.blocklist.enabled", true); // DEFAULT
+user_pref("extensions.blocklist.enabled", true); // DEFAULT
 
 // PREF: disable auto-INSTALLING Firefox updates [NON-WINDOWS]
 // [NOTE] In FF65+ on Windows this SETTING (below) is now stored in a file and the pref was removed.
 // [SETTING] General>Firefox Updates>Check for updates but let you choose to install them
-//user_pref("app.update.auto", false);
+user_pref("app.update.auto", false);
 
 // PREF: disable automatic extension updates
-//user_pref("extensions.update.enabled", false);
+user_pref("extensions.update.enabled", true);
 
 // PREF: disable search engine updates (e.g. OpenSearch)
 // Prevent Firefox from adding back search engines after you removed them.
@@ -2618,11 +2027,11 @@ user_pref("browser.search.update", false);
 user_pref("permissions.manager.defaultsUrl", "");
 
 // PREF: remove webchannel whitelist
-//user_pref("webchannel.allowObject.urlWhitelist", ""); // [DEFAULT FF132+]
+user_pref("webchannel.allowObject.urlWhitelist", ""); // [DEFAULT FF132+]
 
 // PREF: disable metadata caching for installed add-ons by default
 // [1] https://blog.mozilla.org/addons/how-to-opt-out-of-add-on-metadata-updates/
-user_pref("extensions.getAddons.cache.enabled", true);
+user_pref("extensions.getAddons.cache.enabled", false);
 
 /******************************************************************************
  * SECTION: TELEMETRY                                                   *
@@ -2656,11 +2065,12 @@ user_pref("toolkit.telemetry.dap_enabled", false); // DEFAULT [FF108]
 
 // PREF: disable Telemetry Coverage
 // [1] https://blog.mozilla.org/data/2018/08/20/effectively-measuring-search-in-firefox/
+// [2] https://github.com/yokoffing/Betterfox/issues/443
 user_pref("toolkit.telemetry.coverage.opt-out", true); // [HIDDEN PREF]
 user_pref("toolkit.coverage.opt-out", true); // [FF64+] [HIDDEN PREF]
 user_pref("toolkit.coverage.endpoint.base", "");
 
-// PREF: disable Firefox Home (Activity Stream) telemetry 
+// PREF: disable Firefox Home (Activity Stream) telemetry
 user_pref("browser.newtabpage.activity-stream.feeds.telemetry", false);
 user_pref("browser.newtabpage.activity-stream.telemetry", false);
 
@@ -2688,11 +2098,11 @@ user_pref("app.normandy.api_url", "");
 // PREF: disable crash reports
 user_pref("breakpad.reportURL", "");
 user_pref("browser.tabs.crashReporting.sendReport", false);
-    //user_pref("browser.crashReports.unsubmittedCheck.enabled", false); // DEFAULT
+user_pref("browser.crashReports.unsubmittedCheck.enabled", false); // DEFAULT
 
 // PREF: enforce no submission of backlogged crash reports
 // [SETTING] Privacy & Security>Firefox Data Collection & Use>Allow Firefox to send backlogged crash reports
-//user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false); // [DEFAULT FF132+]
+user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false); // [DEFAULT FF132+]
 
 /******************************************************************************
  * SECTION: DETECTION                                                        *
@@ -2702,65 +2112,46 @@ user_pref("browser.tabs.crashReporting.sendReport", false);
 // [WARNING] Do NOT use for mobile devices. May NOT be able to use Firefox on public wifi (hotels, coffee shops, etc).
 // [1] https://www.eff.org/deeplinks/2017/08/how-captive-portals-interfere-wireless-security-and-privacy
 // [2] https://wiki.mozilla.org/Necko/CaptivePortal
-//user_pref("captivedetect.canonicalURL", "");
-//user_pref("network.captive-portal-service.enabled", false);
+user_pref("captivedetect.canonicalURL", "");
+user_pref("network.captive-portal-service.enabled", false);
 
 // PREF: disable Network Connectivity checks
 // [WARNING] Do NOT use for mobile devices. May NOT be able to use Firefox on public wifi (hotels, coffee shops, etc).
 // [1] https://bugzilla.mozilla.org/1460537
-//user_pref("network.connectivity-service.enabled", false);
+user_pref("network.connectivity-service.enabled", false);
 
 // PREF: disable Privacy-Preserving Attribution [FF128+]
 // [NOTE] PPA disabled if main telemetry switches are disabled.
 // [SETTING] Privacy & Security>Website Advertising Preferences>Allow websites to perform privacy-preserving ad measurement
 // [1] https://support.mozilla.org/kb/privacy-preserving-attribution
 // [2] https://searchfox.org/mozilla-central/rev/f3e4b33a6122ce63bf81ae8c30cc5ac37458864b/dom/privateattribution/PrivateAttributionService.sys.mjs#267
-//user_pref("dom.private-attribution.submission.enabled", false);
-    //user_pref("toolkit.telemetry.dap_helper", ""); // [OPTIONAL HARDENING]
-    //user_pref("toolkit.telemetry.dap_leader", ""); // [OPTIONAL HARDENING]
+user_pref("dom.private-attribution.submission.enabled", false);
+user_pref("toolkit.telemetry.dap_helper", ""); // [OPTIONAL HARDENING]
+user_pref("toolkit.telemetry.dap_leader", ""); // [OPTIONAL HARDENING]
 
 // PREF: software that continually reports what default browser you are using [WINDOWS]
 // [WARNING] Breaks "Make Default..." button in Preferences to set Firefox as the default browser [2].
 // [1] https://techdows.com/2020/04/what-is-firefox-default-browser-agent-and-how-to-disable-it.html
 // [2] https://github.com/yokoffing/Betterfox/issues/166
-//user_pref("default-browser-agent.enabled", false);
+user_pref("default-browser-agent.enabled", true);
 
 // PREF: "report extensions for abuse"
-//user_pref("extensions.abuseReport.enabled", false);
+user_pref("extensions.abuseReport.enabled", false);
 
 // PREF: SERP Telemetry [FF125+]
 // [1] https://blog.mozilla.org/en/products/firefox/firefox-search-update/
-//user_pref("browser.search.serpEventTelemetryCategorization.enabled", false);
+user_pref("browser.search.serpEventTelemetryCategorization.enabled", false);
 
 // PREF: assorted telemetry
 // [NOTE] Shouldn't be needed for user.js, but browser forks may want to disable these prefs.
-//user_pref("doh-rollout.disable-heuristics", true); // ensure DoH doesn't get enabled automatically
-//user_pref("dom.security.unexpected_system_load_telemetry_enabled", false);
-//user_pref("messaging-system.rsexperimentloader.enabled", false);
-//user_pref("network.trr.confirmation_telemetry_enabled", false);
-//user_pref("security.app_menu.recordEventTelemetry", false);
-//user_pref("security.certerrors.mitm.priming.enabled", false);
-//user_pref("security.certerrors.recordEventTelemetry", false);
-//user_pref("security.protectionspopup.recordEventTelemetry", false);
-//user_pref("signon.recipes.remoteRecipes.enabled", false);
-//user_pref("privacy.trackingprotection.emailtracking.data_collection.enabled", false);
-//user_pref("messaging-system.askForFeedback", true); // DEFAULT [FF120+]
-
-/****************************************************************************************
- * OPTION: NATURAL SMOOTH SCROLLING V3 [MODIFIED]                                      *
-****************************************************************************************/
-// credit: https://github.com/AveYo/fox/blob/cf56d1194f4e5958169f9cf335cd175daa48d349/Natural%20Smooth%20Scrolling%20for%20user.js
-// recommended for 120hz+ displays
-// largely matches Chrome flags: Windows Scrolling Personality and Smooth Scrolling
-user_pref("apz.overscroll.enabled", true); // DEFAULT NON-LINUX
-user_pref("general.smoothScroll", true); // DEFAULT
-user_pref("general.smoothScroll.msdPhysics.continuousMotionMaxDeltaMS", 12);
-user_pref("general.smoothScroll.msdPhysics.enabled", true);
-user_pref("general.smoothScroll.msdPhysics.motionBeginSpringConstant", 600);
-user_pref("general.smoothScroll.msdPhysics.regularSpringConstant", 650);
-user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaMS", 25);
-user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaRatio", "2");
-user_pref("general.smoothScroll.msdPhysics.slowdownSpringConstant", 250);
-user_pref("general.smoothScroll.currentVelocityWeighting", "1");
-user_pref("general.smoothScroll.stopDecelerationWeighting", "1");
-user_pref("mousewheel.default.delta_multiplier_y", 300); // 250-400; adjust this number to your liking
+user_pref("doh-rollout.disable-heuristics", true); // ensure DoH doesn't get enabled automatically
+user_pref("dom.security.unexpected_system_load_telemetry_enabled", false);
+user_pref("messaging-system.rsexperimentloader.enabled", false);
+user_pref("network.trr.confirmation_telemetry_enabled", false);
+user_pref("security.app_menu.recordEventTelemetry", false);
+user_pref("security.certerrors.mitm.priming.enabled", false);
+user_pref("security.certerrors.recordEventTelemetry", false);
+user_pref("security.protectionspopup.recordEventTelemetry", false);
+user_pref("signon.recipes.remoteRecipes.enabled", false);
+user_pref("privacy.trackingprotection.emailtracking.data_collection.enabled", false);
+user_pref("messaging-system.askForFeedback", true); // DEFAULT [FF120+]
